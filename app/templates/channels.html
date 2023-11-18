@@ -1,0 +1,135 @@
+{% extends "_base.html" %}
+
+{% block title %}
+Channels
+{% endblock %}
+
+{% block control %}
+{% if username is none %}
+<div>
+    <button id="button_login" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#motal_login">
+        Login
+    </button>
+    <button id="button_register" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#motal_register">
+        Register
+    </button>
+</div>
+{% else %}
+<form class="form-inline" action="{{ url_for('channels.add_channel') }}" method="post">
+    <div class="form-group">
+        <label for="new_channel" class="sr-only">Add a channel</label>
+        <input type="text" id="new_channel" name="new_channel" class="form-control" placeholder="Create a new channel">
+        <label for="add_channel" class="sr-only">Submit</label>
+        <button id="add_channel" class="btn btn-md btn-primary">Submit</button>
+    </div>
+</form>
+{% endif %}
+{% endblock %}
+
+{% block disp %}
+{% if username is none %}
+<div id="motal_login" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="{{ url_for('auth.login') }}" method="post">
+                <div class="modal-header">
+                  <label for="motal_login">ChatRoom</label>
+                </div>
+                <div class="modal-body">
+                    <label for="login_username">Username</label>
+                    <input type="text" id="login_username" name="username" class="form-control validate" placeholder="Your display name">
+                    <br>
+                    <label for="login_password">Password</label>
+                    <input type="password" id="login_password" name="password" class="form-control validate" placeholder="Your password">
+                    {#<div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                            <i id="login_password_visibility" class="fa fa-eye"></i>
+                        </button>
+                    </div>#}
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-lg btn-primary">
+                    Submit
+                  </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="motal_register" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form action="{{ url_for('auth.register') }}" method="post" onsubmit="return validateForm()">
+                <div class="modal-header">
+                  <label for="motal_register">ChatRoom</label>
+                </div>
+                <div class="modal-body">
+                    <label for="register_username">Username</label>
+                    <input type="text" id="register_username" name="username" class="form-control validate" placeholder="Your display name">
+                    <br>
+                    <label for="register_password">Password</label>
+                    <input type="password" id="register_password" name="password" class="form-control validate" placeholder="Your password">
+                    <br>
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control validate" placeholder="Confirm your password">
+                    {#<div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                            <i id="register_password_visibility" class="fa fa-eye"></i>
+                        </button>
+                    </div>#}
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-lg btn-primary">
+                    Submit
+                  </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    function validateForm() {
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        if (password !== confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+        return true;
+    }
+</script>
+{% else %}
+<table id="last_channels" class="table table-striped table-hover table-responsive">
+    <thead>
+        <tr><th class="th-sm">The latest channel you accessed</th></tr>
+    </thead>
+    <tbody>
+        {% if last_visit is not none %}
+            <tr><td><a href="channel/{{ last_visit }}">{{ last_visit }}</a></td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+<table id="tbl_channels" class="table table-striped table-hover table-responsive">
+    <thead>
+        <tr>
+            <th class="th-sm">Channel</th>
+            <th class="th-sm">Created at</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if channels|length > 0 %}
+            {% for channel in channels %}
+            <tr>
+                <td><a href="{{ url_for('channels.get_channel', channel_id=channel.get('id')) }}">
+                    {{ channel['name'] }}</a></td>
+                <td>{{ channel['created'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

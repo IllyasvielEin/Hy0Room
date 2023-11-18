@@ -1,0 +1,97 @@
+<!-- templates/channel.html -->
+{% extends "_base.html" %}
+
+{% block title %}
+Channel {{ channel }}
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="https://cdn.socket.io/4.4.1/socket.io.min.js" integrity="sha384-fKnu0iswBIqkjxrhQCTZ7qlLHOFEgNkRmK2vaO/LbTZSXdJfAu6ewRBdwHPhBo/H" crossorigin="anonymous"></script>
+
+<!-- handlebars template -->
+<script id="chatPost" type="text/x-handlebars-template">
+    <tr>
+        {% raw -%}
+        <td>
+            {{#if same_user }}
+                <span data-class="username" style='color:dodgerblue'>
+                  {{ username }}
+                </span>
+            {{ else }}
+                <span data-class="username" style='color:lightsalmon'>
+                  {{ username }}
+                </span>
+            {{/if}}
+        </td>
+        <td>
+            {{#if same_user }}
+                <span data-class="send_at" style='color:dodgerblue'>
+                  {{ send_at }}
+                </span>
+            {{ else}}
+                <span data-class="send_at" style='color:lightsalmon'>
+                  {{ send_at }}
+                </span>
+            {{/if}}
+        </td>
+        <td>
+            {{#if same_user }}
+                <span data-class="content" style='color:dodgerblue'>
+                  {{ content }}
+                </span>
+                <button data-id="{{ mes_id }}" data-class="del" style="float:right"
+                 class="btn btn-sm btn-danger">Delete</button>
+            {{ else }}
+                <span data-class="content" style='color:lightsalmon'>
+                  {{ content }}
+                </span>
+            {{/if}}
+        </td>
+        {%- endraw %}
+    </tr>
+</script>
+
+<script type="text/javascript">
+    let cur_user_id = '{{ user_id }}';
+    let cur_user_name = decodeURI('{{ username }}');
+    let cur_channel_id = decodeURI("{{ channel }}");
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector("#msgTbl").innerHTML = format_chats({{ chats }});
+    });
+</script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>
+{% endblock %}
+
+{% block control %}
+{% endblock %}
+
+{% block disp %}
+<table id="tbl_chat" class="table table-striped table-hover table-responsive">
+    <caption>You are now in channel [{{ channel }}].</caption>
+    <thead>
+        <tr>
+            <th class="th-sm">User</th>
+            <th class="th-sm">Time</th>
+            <th class="th-sm">Message</th>
+        </tr>
+    </thead>
+    <tbody id="msgTbl">
+    </tbody>
+</table>
+{% endblock %}
+
+{% block botm_cont %}
+<div class="container">
+    <div class="form-group" id="inputMsg">
+        <label for="msg" class="sr-only">Input your message</label>
+        <textarea id="msg" name="msg" class="form-control" placeholder="Input your message"
+         rows="4"></textarea>
+        <label for="send" class="sr-only">Send</label>
+        <button id="send" type="submit" class="btn btn-md btn-primary">
+          Send (Shift+Enter)
+        </button>
+        <a href="/channels">&nbsp;&nbsp;&gt;&gt;&gt;Go back to channel list.</a>
+    </div>
+</div>
+{% endblock %}

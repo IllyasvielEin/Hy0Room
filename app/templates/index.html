@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <style>
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        .user-info {
+            font-weight: bold;
+        }
+        .button {
+            padding: 5px 10px;
+            margin: 0 5px;
+        }
+        .form-container {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>
+            <!-- 登录、注册和注销按钮 -->
+            <a class="button" href="#" onclick="toggleForm('loginForm')">Login</a>
+            <a class="button" href="#" onclick="toggleForm('registerForm')">Register</a>
+            <a class="button" href="#" onclick="logout()">Logout</a>
+        </div>
+        <div>
+            <!-- 用户信息 -->
+            {% if user_logged_in %}
+                <span class="user-info">{{ username }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 登录表单 -->
+    <div id="loginForm" class="form-container">
+        <h2>Login</h2>
+        <form onsubmit="login(); return false;">
+            <div>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <div>
+                <input type="submit" value="Login">
+            </div>
+        </form>
+    </div>
+
+    <!-- 注册表单 -->
+    <div id="registerForm" class="form-container">
+        <h2>Register</h2>
+        <form onsubmit="register(); return false;">
+            <div>
+                <label for="newUsername">New Username:</label>
+                <input type="text" id="newUsername" name="newUsername">
+            </div>
+            <div>
+                <label for="newPassword">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword">
+            </div>
+            <div>
+                <input type="submit" value="Register">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function toggleForm(formId) {
+            const form = document.getElementById(formId);
+            const forms = document.getElementsByClassName('form-container');
+
+            for (let i = 0; i < forms.length; i++) {
+                if (forms[i] !== form) {
+                    forms[i].style.display = 'none';
+                }
+            }
+
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password.');
+                return; // 阻止表单提交
+            }
+
+            fetch('http://localhost:5000/test/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Login successful!');
+                    // 这里可以做登录成功后的逻辑
+                    return response.json();
+                } else {
+                    throw new Error('Login failed.');
+                }
+            })
+            .then(data => {
+                // Store the token in localStorage
+                localStorage.setItem('token', data.token);
+                alert('Login successful!');
+                // Redirect or perform further actions after successful login
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function register() {
+            const username = document.getElementById('newUsername').value;
+            const password = document.getElementById('newPassword').value;
+
+            if (!username || !password) {
+                alert('Please enter both username and password.');
+                return; // 阻止表单提交
+            }
+
+            fetch('http://localhost:5000/test/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Register successful!');
+                    // 这里可以做登录成功后的逻辑
+                } else {
+                    alert('Register failed. Please try again.');
+                    // 这里可以做登录失败后的逻辑
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function logout() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                // Token is already cleared or doesn't exist, handle this scenario
+                alert('Already logged out or token not found.');
+                return;
+            }
+
+            fetch('http://localhost:5000/test/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Include the token in the Authorization header
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Clear the token from localStorage
+                    localStorage.removeItem('token');
+                    alert('Logged out successfully!');
+                    // Perform any additional actions after successful logout
+                } else {
+                    throw new Error('Logout failed.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Logout failed. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>
