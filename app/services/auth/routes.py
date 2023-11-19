@@ -60,7 +60,7 @@ def register():
 
 @auth_bp.route('/logout')
 def logout():
-    if 'token' in session:
+    if 'username' in session:
         session.clear()
         flash(
             Markup(

@@ -57,7 +57,7 @@ Channel {{ channel }}
     let cur_user_name = decodeURI('{{ username }}');
     let cur_channel_id = decodeURI("{{ channel }}");
     document.addEventListener('DOMContentLoaded', () => {
-        document.querySelector("#msgTbl").innerHTML = format_chats({{ chats }});
+        document.querySelector("#msgTbl").innerHTML = format_chats({{ chats | tojson | safe }});
     });
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/chat.js') }}"></script>

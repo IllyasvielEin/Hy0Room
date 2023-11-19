@@ -107,7 +107,7 @@ Channels
     </thead>
     <tbody>
         {% if last_visit is not none %}
-            <tr><td><a href="channel/{{ last_visit }}">{{ last_visit }}</a></td></tr>
+            <tr><td><a href="{{ last_visit }}">{{ last_visit }}</a></td></tr>
         {% endif %}
     </tbody>
 </table>

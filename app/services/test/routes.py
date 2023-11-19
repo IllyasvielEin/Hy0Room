@@ -58,7 +58,7 @@ def register():
 
 @test_bp.route('/logout', methods=['GET'])
 def logout():
-    if 'Authorization' in session:
+    if 'username' in session:
         current_app.logger.info(f"User {session.get('token')} logout")
         return "logout success"
     return "Empty token", 400

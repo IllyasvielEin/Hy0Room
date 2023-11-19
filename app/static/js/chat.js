@@ -69,7 +69,8 @@ function format_chats(messages, userId=cur_user_id){
         const rslt = template(
             {
                 'id': messages.id,
-                'user_id': decodeURI(message.user_id),
+                'user_id': message.user_id,
+                'username': decodeURI(message.username),
                 'send_at': format_date(rslt_date),
                 'content': decodeURI(message.content),
                 'same_user': decodeURI(message.user) === userId

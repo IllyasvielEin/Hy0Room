@@ -62,13 +62,16 @@ def get_channel(channel_id):
     username = session.get('username')
     session['last_visit'] = channel_id
     chats = ChannelsHandler.get_chats(channel_id)
+    chats_dict = [x.to_dict() for x in chats]
+
+    # current_app.logger.info(f"Chats: {chats_dict}")
 
     return render_template(
         "channel.html",
-        username=username,
         user_id=user_id,
+        username=username,
         channel=channel_id,
-        chats=chats
+        chats=chats_dict
     )
 
 

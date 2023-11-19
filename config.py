@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 
 database_info = {
@@ -13,8 +14,10 @@ database_info = {
 class Config:
     DEBUG = False
     Testing = False
-    SQLConnectionURLTemplate = "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
 
+    LOG_LEVEL = logging.INFO
+
+    SQLConnectionURLTemplate = "{dialect}+{driver}://{username}:{password}@{host}:{port}/{database}"
 
 class DevelopmentConfig(Config):
     DEBUG = True

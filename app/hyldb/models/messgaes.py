@@ -11,16 +11,18 @@ class Messages(db.Model, GADBase):
     content = db.Column(db.Text, nullable=False)
     send_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
 
+    user = db.relationship('Users', backref='messages', foreign_keys=[user_id])
     channel = db.relationship('Channels', backref='messages')
 
     def to_dict(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
+            'username': self.user.username,
             'channel_id': self.channel_id,
             'content': self.content,
             'send_at': self.send_at
         }
 
     def __repr__(self):
-        return f"{self.user_id} said {self.content} in room{self.channel_id} at {self.send_at}"
+        return f"{self.user.username}<{self.user_id}> said {self.content} in room{self.channel_id} at {self.send_at}"
