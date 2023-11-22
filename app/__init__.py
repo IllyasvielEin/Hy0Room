@@ -7,7 +7,7 @@ def create_app():
     init_all(app)
 
     handler = app.logger.handlers[0]
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s')
     handler.setFormatter(formatter)
 
     return app

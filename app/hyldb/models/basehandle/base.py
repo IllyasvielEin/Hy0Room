@@ -1,8 +1,11 @@
 from typing import Dict
+
+from flask import current_app
+
 from app.extensions import db
 
 
-class AddBase:
+class CreateBase:
     @classmethod
     def add(cls, **kwargs):
         instance = cls(**kwargs)
@@ -11,7 +14,7 @@ class AddBase:
         return instance
 
 
-class GetBase:
+class ReadBase:
     @classmethod
     def get(cls, filters: Dict | None = None, sorter: str | None = None, limitc=None):
         query = cls.query
@@ -46,7 +49,8 @@ class GetBase:
         obj = cls.query.get(oid)
         return obj if obj else None
 
-class DelBase:
+
+class DeleteBase:
 
     @classmethod
     def delete(cls, obj=None, oid=None):
@@ -64,3 +68,24 @@ class DelBase:
         return ok
 
 
+class UpdateBase:
+    @classmethod
+    def update(cls, oid=None, find_filter: Dict | None = None, kv=None):
+        if (oid is None and find_filter is None) or kv is None:
+            current_app.logger.error(f"Empty oid or kv: {oid}, {kv}")
+            return False
+        if oid is not None:
+            instance = cls.query.get(oid)
+        elif find_filter is not None:
+            instance = cls.query.filter_by(**find_filter).first()
+        if instance:
+            try:
+                for key, value in kv.items():
+                    if hasattr(instance, key):
+                        setattr(instance, key, value)
+
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                return False
+        return True

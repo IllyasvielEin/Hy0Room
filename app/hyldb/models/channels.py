@@ -15,9 +15,3 @@ class Channels(db.Model, GADBase):
     def __repr__(self):
         return f"ChatRoom(id={self.id}, name='{self.name}', description='{self.description}')"
 
-
-user_channel = db.Table(
-    'user_channel',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('channel_id', db.Integer, db.ForeignKey('channels.id'), primary_key=True)
-)

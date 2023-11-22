@@ -20,11 +20,11 @@
         <nav id="navbar" class="navbar navbar-default" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand mb-0" href="#">Chat</a>
+                    <a class="navbar-brand mb-0" href="#">ChatRoom</a>
                 </div>
                 {% if username is not none %}
                 <form class="navbar-form navbar-right" action="{{ url_for('auth.logout') }}" method="get">
-                    <span>Welcome, {{ username }}.&nbsp;&nbsp;</span>
+                    <span>Welcome, <a href="{{ url_for('user.profile', user_id=session['user_id']) }}">{{ session['username'] }}</a>.&nbsp;&nbsp;</span>
                     <button id="logout" class="btn btn-default btn-sm">Log out</button>
                 </form>
                 {% endif %}
@@ -67,4 +67,5 @@
             </div>
         </nav>
     </body>
+    {% block end_script %}{% endblock %}
 </html>

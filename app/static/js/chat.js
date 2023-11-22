@@ -48,16 +48,35 @@ document.addEventListener('DOMContentLoaded', () => {
             window.scrollTo(0, document.body.scrollHeight);
         }
     });
+
+    socket.on('recall msg', data => {
+        console.log('recall msg: ' + JSON.stringify(data));
+        const mes_id = data['mes_data_id'];
+        const elem = document.querySelector('[data-mes-id="' + mes_id + '"]');
+        if (elem) {
+            elem.innerText = '原消息已撤销';
+            elem.style.color = 'grey';
+        }
+        else {
+            console.log('null elem')
+        }
+    });
 });
 
 document.addEventListener("click", evt => {
-    let socket = io.connect(location.protocol + "//" + document.location.port);
+    let socket = io.connect(location.protocol + "//" + document.location.host);
     const tgt = evt.target;
     if (tgt.dataset.class === 'del'){
-        const elem = tgt.parentElement.parentElement;
-        elem.remove();
+        const elem = tgt.parentElement.parentElement.querySelector('[data-class="content"]');;
+        elem.innerText = '原消息已撤销';
+        elem.style.color = 'grey';
         console.log(encodeURI(cur_channel_id) + ': ' + tgt.dataset.id);
-        socket.emit("del msg", {'channel': encodeURI(cur_channel_id), 'id': tgt.dataset.id});
+        socket.emit("del msg",
+            {
+                'channel': encodeURI(cur_channel_id),
+                'id': tgt.dataset.id
+            }
+        );
     }
 });
 
@@ -68,12 +87,13 @@ function format_chats(messages, userId=cur_user_id){
         const rslt_date = new Date(message.send_at)
         const rslt = template(
             {
-                'id': messages.id,
+                'mes_id': message.id,
                 'user_id': message.user_id,
                 'username': decodeURI(message.username),
                 'send_at': format_date(rslt_date),
                 'content': decodeURI(message.content),
-                'same_user': decodeURI(message.user) === userId
+                'same_user': decodeURI(message.user_id) === userId,
+                'revoke': message.state !== 1
             }
         );
         output += rslt

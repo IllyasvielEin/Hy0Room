@@ -1,5 +1,5 @@
-from .base import GetBase, AddBase, DelBase
+from .base import ReadBase, CreateBase, DeleteBase, UpdateBase
 
 
-class GADBase(GetBase, AddBase, DelBase):
+class GADBase(ReadBase, CreateBase, DeleteBase, UpdateBase):
     pass

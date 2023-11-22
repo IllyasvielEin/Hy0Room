@@ -3,21 +3,31 @@ import json
 from flask import Blueprint, request, session, redirect, url_for, current_app, flash, render_template
 
 from app.hyldb.handler.channels import ChannelsHandler
-from app.hyldb.handler.user import UserHandler
+from app.hyldb.handler.users import UserHandler
+from app.hyldb.handler.messages import MessageState
 from app.utils.generate_template import get_markup
 
 channels_bp = Blueprint('channels', __name__, url_prefix="/channels")
 
 
-@channels_bp.route("/", methods=['GET'])
-def get_channels():
-    if 'username' not in session:
+@channels_bp.before_request
+def require_login():
+    if 'user_id' not in session:
+        flash(
+            get_markup(
+                show_message="Please Login"
+            ), 'danger'
+        )
         return redirect(url_for('main.index'))
 
+@channels_bp.route("/", methods=['GET'])
+def get_channels():
+    user_id = session.get('user_id')
     username = session.get('username')
     if username is None:
         return redirect(url_for('main.index'))
-    user, ok = UserHandler.find_user(username=username)
+
+    user, ok = UserHandler.get_user_by_id(user_id=user_id)
     if not ok:
         flash(
             get_markup(
@@ -29,8 +39,8 @@ def get_channels():
         return redirect(url_for('channels.get_channels'))
     else:
         if user is None:
-            current_app.logger.error("Empty User")
-            return redirect(url_for('main.index'))
+            session.clear()
+            return redirect(url_for("main.index"))
         else:
             # channels = UserHandler.get_channels_info(username)
             channels, ok = ChannelsHandler.get_all_channels(brief=True)
@@ -41,6 +51,7 @@ def get_channels():
 
             return render_template(
                 "channels.html",
+                user_id=user_id,
                 username=username,
                 channels=channels,
                 last_visit=last_visit
@@ -49,20 +60,12 @@ def get_channels():
 
 @channels_bp.route("/<int:channel_id>", methods=['GET'])
 def get_channel(channel_id):
-    if 'username' not in session:
-        flash(
-            get_markup(
-                show_message="You are not logged in."
-            ), 'danger'
-        )
-        return redirect(url_for("main.index"))
-
     # set_last_channel
     user_id = session.get('user_id')
     username = session.get('username')
     session['last_visit'] = channel_id
     chats = ChannelsHandler.get_chats(channel_id)
-    chats_dict = [x.to_dict() for x in chats]
+    chats_dict = [x.to_dict() for x in chats if x.state == MessageState.NORMAL]
 
     # current_app.logger.info(f"Chats: {chats_dict}")
 

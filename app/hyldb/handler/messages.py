@@ -1,6 +1,6 @@
 from flask import current_app
 
-from app.hyldb.models.messgaes import Messages
+from app.hyldb.models.messgaes import Messages, MessageState
 
 
 class MessagesHandler:
@@ -20,3 +20,7 @@ class MessagesHandler:
     def del_message(message_id):
         ok = Messages.delete(oid=message_id)
         return ok
+
+    @staticmethod
+    def set_state(mes_id: int, state: MessageState):
+        Messages.update(oid=mes_id, kv={"state": state})

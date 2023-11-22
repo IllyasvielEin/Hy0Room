@@ -1,0 +1,76 @@
+<!-- templates/userinfo.html -->
+{% extends "_base.html" %}
+
+{% if view_user_id|int == session['user_id']|int %}
+{% set is_myself = True %}
+{% else %}
+{% set is_myself = False %}
+{% endif %}
+
+{% block title %}
+User Info
+{% endblock %}
+
+{% block end_script %}
+<script>
+    let isEditing = true;
+    const editButton = document.getElementById("editButton")
+    const cancelButton = document.getElementById("cancelButton")
+    const inputs = document.querySelectorAll('input');
+    console.log(editButton.textContent)
+
+    editButton.addEventListener('click', event => {
+        if (isEditing) {
+            inputs.forEach(input => input.removeAttribute('readonly'));
+            editButton.innerText = 'Submit';
+            cancelButton.style.display = "inline-block"
+            isEditing = false;
+        } else {
+            const password = document.getElementById('password').value;
+            const confirm_password = document.getElementById('confirm_password').value;
+            if (password === confirm_password) {
+                document.getElementById('editForm').submit();
+                cancelButton.style.display = "none"
+            } else {
+                alert('Password and Confirm Password should be same.');
+            }
+        }
+    });
+
+    cancelButton.addEventListener('click', event => {
+        inputs.forEach(input => input.setAttribute('readonly', true));
+        editButton.innerText = 'Edit';
+        cancelButton.style.display = "none";
+        isEditing = true;
+    })
+</script>
+{% endblock %}
+
+{% block disp %}
+<form id="editForm" action="/user/{{ session['user_id'] }}/update" method="post">
+    <div class="modal-body">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" class="form-control validate" value="{{ user_info.username }}" readonly>
+        <br>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control validate" placeholder="Your password" readonly>
+        <br>
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control validate" placeholder="Confirm your password" readonly>
+        <br>
+        <label for="real_name">真实姓名</label>
+        <input type="text" id="real_name" name="real_name" class="form-control validate" value="{{ user_info.real_name }}" readonly>
+        <br>
+        <label for="real_name">学号</label>
+        <input type="text" id="student_id" name="student_id" class="form-control validate" value="{{ user_info.student_id }}" readonly>
+    </div>
+    <div class="modal-footer">
+        <button id="cancelButton" type="button" class="btn btn-lg btn-secondary" style="display: none;">
+            Cancel
+        </button>
+        <button id= "editButton" data-id="editButton" type="button" class="btn btn-lg btn-primary">
+        Edit
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, session, current_app
-from app.hyldb.handler.user import UserHandler
+from app.hyldb.handler.users import UserHandler
 
 test_bp = Blueprint('test', __name__, url_prefix="/test")
 
@@ -46,7 +46,7 @@ def register():
         password = body.get('password')
 
         current_app.logger.info(f"register: user {username} identified by {password}")
-        existing_user, ok = UserHandler.find_user(username)
+        existing_user, ok = UserHandler.get_user_by_name(username)
         if not ok:
             return f"Internal error", 500
         if existing_user is not None:

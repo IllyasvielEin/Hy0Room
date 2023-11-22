@@ -13,6 +13,9 @@ Channel {{ channel }}
 <script id="chatPost" type="text/x-handlebars-template">
     <tr>
         {% raw -%}
+
+        <input type="hidden" data-class="user_id" value="{{ user_id }}">
+
         <td>
             {{#if same_user }}
                 <span data-class="username" style='color:dodgerblue'>
@@ -36,16 +39,22 @@ Channel {{ channel }}
             {{/if}}
         </td>
         <td>
-            {{#if same_user }}
-                <span data-class="content" style='color:dodgerblue'>
-                  {{ content }}
+            {{#if revoke }}
+                <span data-class="content revoked" style='color:grey'>
+                    原消息已撤销
                 </span>
-                <button data-id="{{ mes_id }}" data-class="del" style="float:right"
-                 class="btn btn-sm btn-danger">Delete</button>
             {{ else }}
-                <span data-class="content" style='color:lightsalmon'>
-                  {{ content }}
-                </span>
+                {{#if same_user }}
+                    <span data-class="content" style='color:dodgerblue'>
+                              {{ content }}
+                    </span>
+                    <button data-id="{{ mes_id }}" data-class="del" style="float:right"
+                            class="btn btn-sm btn-danger">Delete</button>
+                {{ else }}
+                    <span data-mes-id="{{ mes_id }}" data-class="content" style='color:lightsalmon'>
+                      {{ content }}
+                    </span>
+                {{/if}}
             {{/if}}
         </td>
         {%- endraw %}

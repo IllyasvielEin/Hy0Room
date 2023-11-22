@@ -1,6 +1,12 @@
+from enum import Enum
+
 from app.extensions import db
 from app.hyldb.models.basehandle.mixin import GADBase
 
+class MessageState(Enum):
+    NORMAL = 1
+    WITHDRAWN = 2
+    VIOLATION = 3
 
 class Messages(db.Model, GADBase):
     __tablename__ = 'messages'
@@ -10,6 +16,7 @@ class Messages(db.Model, GADBase):
     channel_id = db.Column(db.Integer, db.ForeignKey('channels.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     send_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    state = db.Column(db.Enum(MessageState), default=MessageState.NORMAL, nullable=False)
 
     user = db.relationship('Users', backref='messages', foreign_keys=[user_id])
     channel = db.relationship('Channels', backref='messages')
@@ -21,7 +28,8 @@ class Messages(db.Model, GADBase):
             'username': self.user.username,
             'channel_id': self.channel_id,
             'content': self.content,
-            'send_at': self.send_at
+            'send_at': self.send_at,
+            'state': self.state.value
         }
 
     def __repr__(self):

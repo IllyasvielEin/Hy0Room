@@ -5,8 +5,7 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    username = session.get('username')
-    if username is None:
+    if 'user_id' not in session:
         return redirect(url_for('auth.login'))
     else:
         return redirect(url_for("channels.get_channels"))
