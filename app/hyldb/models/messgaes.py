@@ -12,11 +12,12 @@ class Messages(db.Model, GADBase):
     __tablename__ = 'messages'
 
     id = db.Column(db.Integer, primary_key=True)
+    send_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    state = db.Column(db.Enum(MessageState), default=MessageState.NORMAL, nullable=False)
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     channel_id = db.Column(db.Integer, db.ForeignKey('channels.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    send_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    state = db.Column(db.Enum(MessageState), default=MessageState.NORMAL, nullable=False)
 
     user = db.relationship('Users', backref='messages', foreign_keys=[user_id])
     channel = db.relationship('Channels', backref='messages')

@@ -10,7 +10,7 @@ class Users(db.Model, GADBase):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
 
-    # channels = db.relationship('Channels', backref='users')
+    channels_creator = db.relationship('Channels', backref=db.backref('creator'))
 
     def __repr__(self):
         return '<User %r>' % self.username

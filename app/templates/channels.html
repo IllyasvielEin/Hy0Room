@@ -16,15 +16,22 @@ Channels
 </div>
 {% else %}
 <form class="form-inline" action="{{ url_for('channels.add_channel') }}" method="post">
-    <div class="form-group">
-        <label for="new_channel" class="sr-only">Add a channel</label>
-        <input type="text" id="new_channel" name="new_channel" class="form-control" placeholder="Create a new channel">
-        <label for="add_channel" class="sr-only">Submit</label>
-        <button id="add_channel" class="btn btn-md btn-primary">Submit</button>
+    <div class="form-group" style="display: flex; flex-direction: column;">
+        <div>
+            <label for="new_channel" class="sr-only">Add a channel</label>
+            <input type="text" id="new_channel" name="new_channel" class="form-control" placeholder="Create a new channel">
+
+            <label for="channel_description" class="sr-only">Channel Description</label>
+            <input type="text" id="channel_description" name="channel_description" class="form-control" style="width: 500px;" placeholder="Add a description for the channel">
+
+            <label for="add_channel" class="sr-only">Submit</label>
+            <button id="add_channel" class="btn btn-md btn-primary">新建频道</button>
+        </div>
     </div>
 </form>
 {% endif %}
 {% endblock %}
+
 
 {% block disp %}
 {% if username is none %}
@@ -83,7 +90,6 @@ Channels
                     {#<br
                     <label for="">信息门户登录密码</label>
                     <input type=>"password" id="id_number" name="id_number" class="form-control validate" placeholder="身份证号码">#}
-                    </div>
                     <div class="modal-footer">
                       <button type="submit" class="btn btn-lg btn-primary">
                         Submit
@@ -94,33 +100,37 @@ Channels
         </div>
     </div>
 </div>
-<script>
-    function validateForm() {
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirmPassword").value;
-        if (password !== confirmPassword) {
-            alert("Passwords do not match.");
-            return false;
-        }
-        return true;
-    }
-</script>
 {% else %}
 <table id="last_channels" class="table table-striped table-hover table-responsive">
     <thead>
         <tr><th class="th-sm">The latest channel you accessed</th></tr>
     </thead>
     <tbody>
-        {% if last_visit is not none %}
-            <tr><td><a href="{{ last_visit }}">{{ last_visit }}</a></td></tr>
+        {% if 'last_visit_channel_id' in session %}
+            <tr><td><a href="{{ session['last_visit_channel_id'] }}">{{ session['last_visit_channel_name'] }}</a></td></tr>
         {% endif %}
     </tbody>
 </table>
 
+<div class="form-group">
+    <form action="{{ url_for('channels.search_channel') }}" method="get">
+        <div class="form-group">
+            <div>
+            <label for="search_channel" class="sr-only">Search a channel</label>
+            <input type="text" id="search_channel" name="search_channel" class="form-control" placeholder="Search a channel">
+            </div>
+            <button id="search_submit" class="btn btn-md btn-primary">搜索频道</button>
+        </div>
+    </form>
+</div>
+
+<div>
 <table id="tbl_channels" class="table table-striped table-hover table-responsive">
     <thead>
         <tr>
             <th class="th-sm">Channel</th>
+            <th class="th-sm">Description</th>
+            <th class="th-sm">Created by</th>
             <th class="th-sm">Created at</th>
         </tr>
     </thead>
@@ -128,13 +138,16 @@ Channels
         {% if channels|length > 0 %}
             {% for channel in channels %}
             <tr>
-                <td><a href="{{ url_for('channels.get_channel', channel_id=channel.get('id')) }}">
-                    {{ channel['name'] }}</a></td>
-                <td>{{ channel['created'].strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                <td><a href="{{ url_for('channels.get_channel', channel_id=channel.id) }}">
+                    {{ channel.name }}</a></td>
+                <td>{{ channel.description }}</td>
+                <td>{{ channel.creator_name }}</td>
+                <td>{{ channel.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
             </tr>
             {% endfor %}
         {% endif %}
     </tbody>
 </table>
+</div>
 {% endif %}
 {% endblock %}

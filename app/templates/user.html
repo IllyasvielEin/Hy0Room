@@ -17,7 +17,7 @@ User Info
     const editButton = document.getElementById("editButton")
     const cancelButton = document.getElementById("cancelButton")
     const inputs = document.querySelectorAll('input');
-    console.log(editButton.textContent)
+    {#console.log(editButton.textContent)#}
 
     editButton.addEventListener('click', event => {
         if (isEditing) {
@@ -64,6 +64,7 @@ User Info
         <label for="real_name">学号</label>
         <input type="text" id="student_id" name="student_id" class="form-control validate" value="{{ user_info.student_id }}" readonly>
     </div>
+    {% if is_myself %}
     <div class="modal-footer">
         <button id="cancelButton" type="button" class="btn btn-lg btn-secondary" style="display: none;">
             Cancel
@@ -72,5 +73,6 @@ User Info
         Edit
         </button>
     </div>
+    {% endif %}
 </form>
 {% endblock %}

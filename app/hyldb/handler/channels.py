@@ -5,7 +5,12 @@ from app.hyldb.models.channels import Channels
 class ChannelsHandler:
 
     @staticmethod
-    def find_channel(channel_name: str):
+    def get_channel_by_id(channel_id: int):
+        res = Channels.get_one_by_id(oid=channel_id)
+        return res
+
+    @staticmethod
+    def get_channel_by_name(channel_name: str):
         tmp_filter = {
             "name": channel_name
         }
@@ -19,10 +24,10 @@ class ChannelsHandler:
         return res, ok
 
     @staticmethod
-    def create_channel(channel_name: str, channel_description: str | None = None):
+    def create_channel(creator_id: int, channel_name: str, channel_description: str | None = None):
         ok = True
         try:
-            Channels.add(name=channel_name, description=channel_description)
+            Channels.add(name=channel_name, description=channel_description, creator_id=creator_id)
         except Exception as e:
             current_app.logger.error(f"Failed in add channel: {e}")
             ok = False
@@ -35,23 +40,13 @@ class ChannelsHandler:
         return channel.messages
 
     @staticmethod
-    def get_all_channels(brief=False):
+    def get_all_channels():
         ok = True
-        res = None
         try:
             channels = Channels.get()
         except Exception as e:
             current_app.logger.error(f"Failed in add channel: {e}")
             ok = False
-            return res, ok
+            channels = None
 
-        if brief:
-            res = [{
-                "id": x.id,
-                "name": x.name,
-                "created": x.created_at
-            } for x in channels]
-        else:
-            res = channels
-
-        return res, ok
+        return channels, ok

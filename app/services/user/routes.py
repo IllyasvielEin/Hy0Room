@@ -9,16 +9,20 @@ user_bp = Blueprint('user', __name__, url_prefix='/user')
 @user_bp.before_request
 def require_login():
     if 'user_id' not in session:
-        flash(
-            get_markup(
-                show_message="Please Login"
-            ), 'danger'
-        )
-        current_app.logger.info("Unauthenticated")
+        # flash(
+        #     get_markup(
+        #         show_message="Please Login"
+        #     ), 'danger'
+        # )
+        # current_app.logger.info("Unauthenticated")
         return redirect(url_for('main.index'))
 
-@user_bp.route('/<user_id>')
+@user_bp.route('/<int:user_id>')
 def profile(user_id: int):
+    print(user_id == 1)
+    if user_id == 1 and session['user_id'] == 1:
+        return redirect(url_for('admin.index'))
+
     res, ok = UserHandler.get_user_by_id(user_id)
     if not ok or res is None:
         flash(
@@ -43,6 +47,11 @@ def profile(user_id: int):
 
 @user_bp.route('/<user_id>/update', methods=['POST'])
 def update(user_id):
+
+    request_user_id = session['user_id']
+    if request_user_id != user_id:
+        return jsonify({'status': 'not matching user_id'}), 400
+
     ok = True
     try:
         form = request.form.to_dict()

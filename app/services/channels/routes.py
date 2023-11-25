@@ -20,12 +20,13 @@ def require_login():
         )
         return redirect(url_for('main.index'))
 
+
 @channels_bp.route("/", methods=['GET'])
 def get_channels():
     user_id = session.get('user_id')
     username = session.get('username')
     if username is None:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('auth.login'))
 
     user, ok = UserHandler.get_user_by_id(user_id=user_id)
     if not ok:
@@ -43,7 +44,8 @@ def get_channels():
             return redirect(url_for("main.index"))
         else:
             # channels = UserHandler.get_channels_info(username)
-            channels, ok = ChannelsHandler.get_all_channels(brief=True)
+            channels, ok = ChannelsHandler.get_all_channels()
+
             if not ok:
                 return "Internal Error", 500
             # current_app.logger.info(f"Get channels: {channels}")
@@ -60,11 +62,24 @@ def get_channels():
 
 @channels_bp.route("/<int:channel_id>", methods=['GET'])
 def get_channel(channel_id):
-    # set_last_channel
     user_id = session.get('user_id')
     username = session.get('username')
-    session['last_visit'] = channel_id
-    chats = ChannelsHandler.get_chats(channel_id)
+
+    channel = ChannelsHandler.get_channel_by_id(channel_id)
+
+    if channel is None:
+        flash(
+            get_markup(
+                show_message="Empty channel"
+            ), 'danger'
+        )
+        return redirect(url_for('main.index'))
+
+    # set_last_channel
+    session['last_visit_channel_id'] = channel_id
+    session['last_visit_channel_name'] = channel.name
+
+    chats = channel.messages
     chats_dict = [x.to_dict() for x in chats if x.state == MessageState.NORMAL]
 
     # current_app.logger.info(f"Chats: {chats_dict}")
@@ -73,7 +88,8 @@ def get_channel(channel_id):
         "channel.html",
         user_id=user_id,
         username=username,
-        channel=channel_id,
+        channel_id=channel_id,
+        channel_name=channel.name,
         chats=chats_dict
     )
 
@@ -84,9 +100,12 @@ def add_channel():
     category = None
     return_content = "channels.get_channels"
 
+    request_user_id = session['user_id']
     new_channel = request.form.get('new_channel').strip()
+    channel_description = request.form.get('channel_description').strip()
+
     if new_channel != "":
-        res, ok = ChannelsHandler.find_channel(new_channel)
+        res, ok = ChannelsHandler.get_channel_by_name(new_channel)
         if not ok:
             markup_content = get_markup(
                 iclass="fa fa-2x fa-warning",
@@ -101,7 +120,11 @@ def add_channel():
                 )
                 category = 'warning'
             else:
-                ok = ChannelsHandler.create_channel(new_channel)
+                ok = ChannelsHandler.create_channel(
+                    creator_id=request_user_id,
+                    channel_name=new_channel,
+                    channel_description=channel_description
+                    )
                 if ok:
                     markup_content = get_markup(
                         iclass='fa fa-2x fa-check-square-o',
@@ -119,3 +142,28 @@ def add_channel():
         flash(markup_content, category=category)
 
     return redirect(url_for(return_content))
+
+
+@channels_bp.route("search_channel", methods=['GET'])
+def search_channel():
+    channel_name = request.args.get('search_channel')
+    channel, ok = ChannelsHandler.get_channel_by_name(channel_name)
+    if not ok:
+        flash(
+            get_markup(
+                show_message="Internal error"
+            ), 'danger'
+        )
+        return redirect(url_for('main.index'))
+
+    user_id = session['user_id']
+    username = session['username']
+    last_visit = session.get('last_visit_channel_name')
+
+    return render_template(
+        "channels.html",
+        user_id=user_id,
+        username=username,
+        channels=[channel],
+        last_visit=last_visit
+    )

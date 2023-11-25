@@ -2,6 +2,7 @@ from typing import Dict
 
 from flask import current_app
 
+from app.hyldb.models.permission import PermissionType, Permission
 from app.hyldb.models.users import Users
 from app.hyldb.models.userdetails import UserDetails
 
@@ -34,10 +35,18 @@ class UserHandler:
         return res, ok
 
     @staticmethod
-    def add_user(username: str, password: str, student_id: str, real_name: str):
+    def add_user(username: str,
+                 password: str,
+                 student_id: str,
+                 real_name: str,
+                 user_id: int = None,
+                 permission: PermissionType = PermissionType.USER):
         ok = True
         try:
-            res = Users.add(username=username, password=password)
+            if user_id is not None:
+                res = Users.add(id=user_id, username=username, password=password)
+            else:
+                res = Users.add(username=username, password=password)
         except Exception as e:
             current_app.logger.error(f'{e}')
             ok = False
@@ -46,6 +55,10 @@ class UserHandler:
         if ok:
             try:
                 UserDetails.add(user_id=res.id, student_id=student_id, real_name=real_name)
+                Permission.add(
+                    user_id=res.id,
+                    permission_type=permission
+                )
             except Exception as e:
                 Users.delete(res)
                 ok = False
@@ -74,3 +87,11 @@ class UserHandler:
             ok = UserDetails.update(find_filter=tmp_filter, kv=kv)
         return ok
 
+    @staticmethod
+    def get_all():
+        try:
+            res = Users.get()
+        except Exception as e:
+            current_app.logger.error(f"Error {e} occur while getting all user")
+            res = None
+        return res

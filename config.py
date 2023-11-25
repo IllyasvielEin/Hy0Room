@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 from enum import Enum
 
 database_info = {
@@ -22,6 +23,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SECRET_KEY = "hyl666"
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=12)
     SQLALCHEMY_DATABASE_URI = Config.SQLConnectionURLTemplate.format_map(
         database_info
     )

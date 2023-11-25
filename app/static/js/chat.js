@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('emit msg', data => {
-        console.log('emit msg: ' + JSON.stringify(data));
+        // console.log('emit msg: ' + JSON.stringify(data));
         if (cur_channel_id === data.channel_id){
             const postTime = new Date(data.send_at);
             const content = template(
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('recall msg', data => {
-        console.log('recall msg: ' + JSON.stringify(data));
+        // console.log('recall msg: ' + JSON.stringify(data));
         const mes_id = data['mes_data_id'];
         const elem = document.querySelector('[data-mes-id="' + mes_id + '"]');
         if (elem) {
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             elem.style.color = 'grey';
         }
         else {
-            console.log('null elem')
+            // console.log('null elem')
         }
     });
 });
@@ -70,7 +70,7 @@ document.addEventListener("click", evt => {
         const elem = tgt.parentElement.parentElement.querySelector('[data-class="content"]');;
         elem.innerText = '原消息已撤销';
         elem.style.color = 'grey';
-        console.log(encodeURI(cur_channel_id) + ': ' + tgt.dataset.id);
+        // console.log(encodeURI(cur_channel_id) + ': ' + tgt.dataset.id);
         socket.emit("del msg",
             {
                 'channel': encodeURI(cur_channel_id),
