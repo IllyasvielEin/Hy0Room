@@ -19,7 +19,6 @@ def require_login():
 
 @user_bp.route('/<int:user_id>')
 def profile(user_id: int):
-    print(user_id == 1)
     if user_id == 1 and session['user_id'] == 1:
         return redirect(url_for('admin.index'))
 

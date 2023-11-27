@@ -1,6 +1,7 @@
 from typing import Dict
 
 from flask import current_app
+from sqlalchemy import and_
 
 from app.extensions import db
 
@@ -8,9 +9,13 @@ from app.extensions import db
 class CreateBase:
     @classmethod
     def add(cls, **kwargs):
-        instance = cls(**kwargs)
-        db.session.add(instance)
-        db.session.commit()
+        try:
+            instance = cls(**kwargs)
+            db.session.add(instance)
+            db.session.commit()
+        except Exception as e:
+            current_app.logger.error(f'{e}')
+            db.session.rollback()
         return instance
 
 
@@ -53,19 +58,19 @@ class ReadBase:
 class DeleteBase:
 
     @classmethod
-    def delete(cls, obj=None, oid=None):
-        ok = True
-        try:
-            if obj:
-                cls.query.delete(obj)
-            elif oid:
-                obj = cls.query.get(oid)
-                if obj:
-                    cls.query.delete(obj)
-            db.session.commit()
-        except Exception as e:
-            ok = False
-        return ok
+    def delete(cls, oid=None, filters=None):
+        if oid:
+            query = cls.query.filter(cls.id == oid)
+
+        elif filters:
+            query = cls.query.filter(
+                and_(*[getattr(cls, k) == v for k, v in filters.items()])
+            )
+        else:
+            raise ValueError("Must provide either an object ID or a filter.")
+
+        query.delete(synchronize_session='fetch')
+        db.session.commit()
 
 
 class UpdateBase:

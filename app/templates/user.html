@@ -12,38 +12,40 @@ User Info
 {% endblock %}
 
 {% block end_script %}
-<script>
-    let isEditing = true;
-    const editButton = document.getElementById("editButton")
-    const cancelButton = document.getElementById("cancelButton")
-    const inputs = document.querySelectorAll('input');
-    {#console.log(editButton.textContent)#}
+    {% if is_myself %}
+        <script>
+            let isEditing = true;
+            const editButton = document.getElementById("editButton")
+            const cancelButton = document.getElementById("cancelButton")
+            const inputs = document.querySelectorAll('input');
+            {#console.log(editButton.textContent)#}
 
-    editButton.addEventListener('click', event => {
-        if (isEditing) {
-            inputs.forEach(input => input.removeAttribute('readonly'));
-            editButton.innerText = 'Submit';
-            cancelButton.style.display = "inline-block"
-            isEditing = false;
-        } else {
-            const password = document.getElementById('password').value;
-            const confirm_password = document.getElementById('confirm_password').value;
-            if (password === confirm_password) {
-                document.getElementById('editForm').submit();
-                cancelButton.style.display = "none"
-            } else {
-                alert('Password and Confirm Password should be same.');
-            }
-        }
-    });
+            editButton.addEventListener('click', event => {
+                if (isEditing) {
+                    inputs.forEach(input => input.removeAttribute('readonly'));
+                    editButton.innerText = 'Submit';
+                    cancelButton.style.display = "inline-block"
+                    isEditing = false;
+                } else {
+                    const password = document.getElementById('password').value;
+                    const confirm_password = document.getElementById('confirm_password').value;
+                    if (password === confirm_password) {
+                        document.getElementById('editForm').submit();
+                        cancelButton.style.display = "none"
+                    } else {
+                        alert('Password and Confirm Password should be same.');
+                    }
+                }
+            });
 
-    cancelButton.addEventListener('click', event => {
-        inputs.forEach(input => input.setAttribute('readonly', true));
-        editButton.innerText = 'Edit';
-        cancelButton.style.display = "none";
-        isEditing = true;
-    })
-</script>
+            cancelButton.addEventListener('click', event => {
+                inputs.forEach(input => input.setAttribute('readonly', true));
+                editButton.innerText = 'Edit';
+                cancelButton.style.display = "none";
+                isEditing = true;
+            })
+        </script>
+    {% endif %}
 {% endblock %}
 
 {% block disp %}

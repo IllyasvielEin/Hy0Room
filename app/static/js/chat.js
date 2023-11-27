@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const post_time = new Date();
             // console.log(msg);
             socket.emit('send msg', {
-                'user_id': encodeURI(cur_user_id),
+                'user_id': cur_user_id,
                 'username': encodeURI(cur_user_name),
                 'send_at': post_time,
                 'content': encodeURI(msg),
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     socket.on('emit msg', data => {
         // console.log('emit msg: ' + JSON.stringify(data));
-        if (cur_channel_id === data.channel_id){
+        if (cur_channel_id === data.channel_id) {
             const postTime = new Date(data.send_at);
             const content = template(
                 {

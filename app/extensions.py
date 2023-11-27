@@ -1,12 +1,17 @@
 from flask import Flask
 from config import get_config, ConfigType
 from flask_socketio import SocketIO
-from app.utils.usermanager import UserManager
 from flask_sqlalchemy import SQLAlchemy
+
+from app.utils.usermanager import UserManager
+from app.utils.messgaefilter import MessageFilter
+
 
 socketio = SocketIO()
 online_user = UserManager()
 db = SQLAlchemy()
+
+message_filter = MessageFilter()
 
 
 def init_all(app: Flask):
@@ -25,6 +30,8 @@ def start_socketio_run(app, **kwargs):
 def init_db(app: Flask):
     from app.hyldb.handler.users import UserHandler
     from app.hyldb.models.permission import PermissionType
+    from app.hyldb.handler.banwords import BanWordsHandler
+
     with app.app_context():
         res, ok = UserHandler.get_user_by_id(1)
         if not ok:
@@ -44,4 +51,11 @@ def init_db(app: Flask):
             except Exception as e:
                 app.logger.error(f'{e}')
                 return False
+
+        ban_word_db = [x.word for x in BanWordsHandler.get_all()]
+        message_filter.add(
+            ban_word_db
+        )
+        app.logger.info(f"Load ban words: {ban_word_db}, words: {message_filter.get_words()}")
+
     return True

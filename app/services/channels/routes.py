@@ -7,6 +7,9 @@ from app.hyldb.handler.users import UserHandler
 from app.hyldb.handler.messages import MessageState
 from app.utils.generate_template import get_markup
 
+from app.extensions import message_filter
+
+
 channels_bp = Blueprint('channels', __name__, url_prefix="/channels")
 
 
@@ -81,6 +84,8 @@ def get_channel(channel_id):
 
     chats = channel.messages
     chats_dict = [x.to_dict() for x in chats if x.state == MessageState.NORMAL]
+    # for chat in chats_dict:
+    #     chat['content'] = message_filter.mes_filter(chat)
 
     # current_app.logger.info(f"Chats: {chats_dict}")
 
