@@ -16,7 +16,7 @@ def create_app():
             return "/socket.io/" not in record.getMessage()
 
     log = logging.getLogger('werkzeug')
-    log.setLevel(logging.WARNING)
+    log.setLevel(logging.INFO)
 
     # Apply the filter
     socket_io_filter = SocketIOFilter()

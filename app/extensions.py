@@ -12,6 +12,7 @@ online_user = UserManager()
 db = SQLAlchemy()
 
 message_filter = MessageFilter()
+user_manager = UserManager()
 
 
 def init_all(app: Flask):
@@ -51,11 +52,14 @@ def init_db(app: Flask):
             except Exception as e:
                 app.logger.error(f'{e}')
                 return False
-
-        ban_word_db = [x.word for x in BanWordsHandler.get_all()]
-        message_filter.add(
-            ban_word_db
-        )
-        app.logger.info(f"Load ban words: {ban_word_db}, words: {message_filter.get_words()}")
+        all_words = BanWordsHandler.get_all()
+        if all_words is None:
+            exit(0)
+        else:
+            ban_word_db = [x.word for x in all_words]
+            message_filter.add(
+                ban_word_db
+            )
+            # app.logger.info(f"Load ban words: {ban_word_db}, words: {message_filter.get_words()}")
 
     return True

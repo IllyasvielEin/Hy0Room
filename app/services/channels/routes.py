@@ -3,12 +3,12 @@ import json
 from flask import Blueprint, request, session, redirect, url_for, current_app, flash, render_template
 
 from app.hyldb.handler.channels import ChannelsHandler
+from app.hyldb.handler.posts import PostsHandler
 from app.hyldb.handler.users import UserHandler
 from app.hyldb.handler.messages import MessageState
 from app.utils.generate_template import get_markup
 
-from app.extensions import message_filter
-
+from app.extensions import message_filter, user_manager
 
 channels_bp = Blueprint('channels', __name__, url_prefix="/channels")
 
@@ -51,15 +51,28 @@ def get_channels():
 
             if not ok:
                 return "Internal Error", 500
+
+            posts = PostsHandler.get_all_posts(filter_normal=True)
+
+            if posts is None:
+                return render_template(
+                    'error.html'
+                )
+
             # current_app.logger.info(f"Get channels: {channels}")
             last_visit = session.get('last_visit')
 
+            active_label = request.args.get('active_label')
+            if active_label is not None:
+                active_label = int(active_label)
             return render_template(
                 "channels.html",
                 user_id=user_id,
                 username=username,
                 channels=channels,
-                last_visit=last_visit
+                last_visit=last_visit,
+                posts=posts,
+                active_label=active_label
             )
 
 
@@ -67,6 +80,14 @@ def get_channels():
 def get_channel(channel_id):
     user_id = session.get('user_id')
     username = session.get('username')
+
+    if not user_manager.add_user(channel_id=channel_id, user=user_id):
+        flash(
+            get_markup(
+                show_message="频道人满为患!"
+            ), 'danger'
+        )
+        return redirect(url_for('channels.get_channels'))
 
     channel = ChannelsHandler.get_channel_by_id(channel_id)
 
@@ -76,7 +97,7 @@ def get_channel(channel_id):
                 show_message="Empty channel"
             ), 'danger'
         )
-        return redirect(url_for('main.index'))
+        return redirect(url_for('channels.get_channels'))
 
     # set_last_channel
     session['last_visit_channel_id'] = channel_id
@@ -89,13 +110,18 @@ def get_channel(channel_id):
 
     # current_app.logger.info(f"Chats: {chats_dict}")
 
+    channel_users_id = user_manager.get_channel_user(channel_id=channel_id)
+    current_app.logger.info(f"{user_manager.get_channel_user(channel_id)}")
+    channel_users = UserHandler.get_all_id_in_list(channel_users_id)
+
     return render_template(
         "channel.html",
         user_id=user_id,
         username=username,
         channel_id=channel_id,
         channel_name=channel.name,
-        chats=chats_dict
+        chats=chats_dict,
+        chanel_users=channel_users
     )
 
 
@@ -129,7 +155,7 @@ def add_channel():
                     creator_id=request_user_id,
                     channel_name=new_channel,
                     channel_description=channel_description
-                    )
+                )
                 if ok:
                     markup_content = get_markup(
                         iclass='fa fa-2x fa-check-square-o',
@@ -170,5 +196,6 @@ def search_channel():
         user_id=user_id,
         username=username,
         channels=[channel],
-        last_visit=last_visit
+        last_visit=last_visit,
+        active_label=1
     )

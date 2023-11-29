@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from flask import current_app
 
@@ -93,5 +93,15 @@ class UserHandler:
             res = Users.get()
         except Exception as e:
             current_app.logger.error(f"Error {e} occur while getting all user")
+            res = None
+        return res
+
+    @staticmethod
+    def get_all_id_in_list(id_list: List[int]):
+        res = []
+        try:
+            for each_id in id_list:
+                res.append(Users.get(filters={'id': each_id}, limitc=1))
+        except Exception as e:
             res = None
         return res

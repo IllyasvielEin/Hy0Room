@@ -3,7 +3,7 @@ from flask_socketio import disconnect
 
 from flask import Blueprint, session, request, render_template, redirect, url_for, current_app
 
-from app.extensions import socketio, message_filter
+from app.extensions import socketio, message_filter, user_manager
 from app.hyldb.handler.messages import MessagesHandler, MessageState
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')

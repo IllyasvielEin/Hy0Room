@@ -14,3 +14,9 @@ class Users(db.Model, GADBase):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+    def __eq__(self, other):
+        return isinstance(other, Users) and self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)

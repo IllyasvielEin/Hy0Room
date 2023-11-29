@@ -1,5 +1,6 @@
 from flask import Blueprint, session, request, redirect, url_for, flash, current_app, render_template
 
+from app.extensions import user_manager
 from app.utils.generate_template import get_markup
 from app.hyldb.handler.users import UserHandler
 from app.hyldb.handler.channels import ChannelsHandler
@@ -10,15 +11,9 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == "GET":
-        username = session.get('username')
-        # channels = UserHandler.get_channels_info(username)
-        channels, ok = ChannelsHandler.get_all_channels()
-        last_visit = session.get('last_visit_channel_name')
         return render_template(
             "channels.html",
-            username=username,
-            channels=channels,
-            last_visit=last_visit
+            username=None
         )
     elif request.method == "POST":
         username: str = request.form.get('username')
@@ -33,7 +28,7 @@ def login():
             )
             return redirect(url_for('auth.login'))
         res, ok = UserHandler.get_user_by_name(username)
-        if not ok or res is None:
+        if not ok:
             flash(
                 get_markup(
                     show_message="Internal error"
@@ -120,4 +115,6 @@ def logout():
                 show_message=f"Logged out"
             )
         )
+        user_id = session.get('user_id')
+        user_manager.remove_user(user_id)
     return redirect(url_for('auth.login'))

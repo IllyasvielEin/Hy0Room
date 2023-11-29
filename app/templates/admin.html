@@ -9,9 +9,15 @@
 
     <div class="container">
         <ul class="nav nav-tabs">
-            <li {% if active_label == "1" %}class="active"{% endif %}><a data-toggle="tab" href="#channels">Channels</a></li>
-            <li {% if active_label == "2" %}class="active"{% endif %}><a data-toggle="tab" href="#users">Users</a></li>
-            <li {% if active_label == "3" %}class="active"{% endif %}><a data-toggle="tab" href="#bannedwords">Banned Words</a></li>
+            <li {% if active_label == "1" %}class="active"{% endif %}>
+                <a data-toggle="tab" href="#channels">Channels</a>
+            </li>
+            <li {% if active_label == "2" %}class="active"{% endif %}>
+                <a data-toggle="tab" href="#users">Users</a>
+            </li>
+            <li {% if active_label == "3" %}class="active"{% endif %}>
+                <a data-toggle="tab" href="#bannedwords">Banned Words</a>
+            </li>
         </ul>
 
         <div class="tab-content">

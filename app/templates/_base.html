@@ -1,71 +1,111 @@
 <!-- templates/_base.html -->
 <!DOCTYPE html>
 <html lang='en'>
-    <head>
-        <meta charset='UTF-8'>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}{% endblock %}</title>
-        <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-        {% block script %}{% endblock %}
-    </head>
-    <body>
-        <!-- head -->
-        <nav id="navbar" class="navbar navbar-default" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <a class="navbar-brand mb-0" href="{{ url_for('main.index') }}">ChatRoom</a>
-                </div>
-                {% if username is not none %}
+<head>
+    <meta charset='UTF-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block script %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="navbar" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand mb-0" href="{{ url_for('main.index') }}">冰糖Zone</a>
+            </div>
+            {% if username is not none %}
                 <form class="navbar-form navbar-right" action="{{ url_for('auth.logout') }}" method="get">
                     <span>Welcome, <a href="{{ url_for('user.profile', user_id=session['user_id']) }}">{{ session['username'] }}</a>.&nbsp;&nbsp;</span>
                     <button id="logout" class="btn btn-default btn-sm">Log out</button>
                 </form>
-                {% endif %}
-            </div>
-        </nav>
-        <!-- flash -->
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                 <div class="alert alert-{{ category }} alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert">
-                      &times;
-                    </button>
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
                     {{ message }}
                 </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        <!-- body -->
-        <div class="container" id="elem_cont">
-            {% block control %}
-            {% endblock %}
-        </div>
-        <div class="container" id="elem_disp">
-            {% block disp %}
-            {% endblock %}
-        </div>
-        <div class="container" id="elem_misc">
-            {% block misc %}
-            {% endblock %}
-        </div>
-        <!-- footer -->
-        <nav class="navbar navbar-fixed-bottom" id="nav_footer" role="navigation">
-            <div class="container" id="elem_foot">
-                <footer class="navbar" id="footer">
-                    <hr>
-                    {% block botm_cont %}
-                    {% endblock %}
-                </footer>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" id="elem_cont">
+        <div class="row">
+            <div class="col-md-12">
+                {% block control %}
+                {% endblock %}
             </div>
-        </nav>
-    </body>
-    {% block end_script %}{% endblock %}
+        </div>
+    </div>
+    <div class="container" id="elem_disp">
+        <div class="row">
+            <div class="col-md-12">
+                {% block disp %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+    <div class="container" id="elem_misc">
+        <div class="row">
+            <div class="col-md-12">
+                {% block misc %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Footer Button -->
+    <button id="toggleFooterBtn" class="btn btn-primary"
+            style="position: fixed; bottom: 20px; left: 20px; z-index: 9999;">
+        Toggle Footer
+    </button>
+
+    <!-- Footer -->
+    <nav class="navbar navbar-fixed-bottom" id="nav_footer" role="navigation">
+        <div class="container" id="elem_foot">
+            <footer class="navbar" id="footer">
+                <hr>
+                {% block botm_cont %}
+                {% endblock %}
+            </footer>
+        </div>
+    </nav>
+
+    {% block end_script %}
+    {% endblock %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toggleBtn = document.getElementById("toggleFooterBtn");
+            var footer = document.getElementById("nav_footer");
+            var isFooterHidden = false;
+
+            toggleBtn.addEventListener("click", function () {
+                if (isFooterHidden) {
+                    footer.style.display = "block";
+                    isFooterHidden = false;
+                } else {
+                    footer.style.display = "none";
+                    isFooterHidden = true;
+                }
+            });
+        });
+    </script>
+</body>
 </html>

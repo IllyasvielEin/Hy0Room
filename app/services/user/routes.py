@@ -44,11 +44,11 @@ def profile(user_id: int):
     )
 
 
-@user_bp.route('/<user_id>/update', methods=['POST'])
-def update(user_id):
+@user_bp.route('/<int:user_id>/update', methods=['POST'])
+def update(user_id: int):
 
     request_user_id = session['user_id']
-    if request_user_id != user_id:
+    if int(request_user_id) != user_id:
         return jsonify({'status': 'not matching user_id'}), 400
 
     ok = True
@@ -57,7 +57,8 @@ def update(user_id):
         filtered_form = {k: v for k, v in form.items() if v is not None and str(v).strip() not in ['']}
         ok = UserHandler.update_user_info(user_id=user_id, kv=filtered_form)
         # current_app.logger.info(f"form: {form}")
-        session['username'] = form.get('username')
+        if ok:
+            session['username'] = form.get('username')
     except Exception as e:
         current_app.logger.error(f'{e}')
         ok = False

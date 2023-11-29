@@ -21,11 +21,13 @@ class CreateBase:
 
 class ReadBase:
     @classmethod
-    def get(cls, filters: Dict | None = None, sorter: str | None = None, limitc=None):
+    def get(cls, filters: Dict | None = None, filter_condition=None, sorter: str | None = None, limitc=None):
         query = cls.query
 
         if filters:
             query = query.filter_by(**filters)
+        elif filter_condition:
+            query = query.filter(filter_condition)
 
         if sorter:
             if sorter.startswith("+"):
@@ -79,6 +81,7 @@ class UpdateBase:
         if (oid is None and find_filter is None) or kv is None:
             current_app.logger.error(f"Empty oid or kv: {oid}, {kv}")
             return False
+
         if oid is not None:
             instance = cls.query.get(oid)
         elif find_filter is not None:

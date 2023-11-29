@@ -9,6 +9,7 @@ from app.services.test.routes import test_bp
 from app.services.channels.routes import channels_bp
 from app.services.user.routes import user_bp
 from app.services.admin.routes import admin_bp
+from app.services.posts.routes import post_bp
 
 app = create_app()
 # CORS(app)
@@ -20,6 +21,7 @@ app.register_blueprint(test_bp)
 app.register_blueprint(channels_bp)
 app.register_blueprint(user_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(post_bp)
 
 
 if __name__ == "__main__":
