@@ -13,36 +13,50 @@
 {% endblock %}
 
 {% block disp %}
-    <div class="container">
-        <h1>{{ post.title }}</h1>
-        <p>Posted on {{ post.created_at }} by {{ post.creator.username }}</p>
-        <hr>
+<div class="container">
+    <h1>{{ post.title }}</h1>
+    <p>Posted on {{ post.created_at }} by {{ post.creator.username }}</p>
+    {% if post.creator.id == session['user_id'] %}
+        <button class="btn btn-primary btn-floating" onclick="location.href='/post/{{ post.id }}/delete?post_id={{ post.id }}'">Delete</button>
+    {% endif %}
+    <hr>
 
-        <div class="post-details">
-            <div class="post-content">
-                <h5 class="author author-name">{{ post.creator.username }}</h5>
-                <p class="comment-text">{{ post.content }}</p>
-                <div class="post-meta">
-                    <p class="timestamp">{{ post.created_at }}</p>
-                </div>
-            </div>
-
-            <div class="comments">
-                {% for comment in post.comments %}
-                    <div class="comment">
-                        <h5 class="comment author-name">{{ comment.creator.username }}</h5>
-                        <p class="comment-text">{{ comment.content }}</p>
-                        <div class="comment-meta">
-                            <p class="timestamp">{{ comment.created_at }}</p>
+    <div class="post-details">
+        <table class="table">
+            <tr>
+                <td>{{ post.creator.username }}</td>
+                <td>{{ post.content }}</td>
+                <td>
+                    {{ post.created_at }}
+                </td>
+            </tr>
+            {% for comment in post.comments %}
+            {% if comment.state.value == 1 %}
+            <tr>
+                <td>{{ comment.creator.username }}</td>
+                <td>{{ comment.content }}</td>
+                <td style="width: 300px">
+                    {{ comment.created_at }}
+                    <div class="dropdown">
+                        <button id="dropdownMenu" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                            {% if comment.creator.id == session['user_id'] %}
+                            <a class="dropdown-item" href="/post/{{ post.id }}/delete?post_id={{ comment.id }}">Delete comment</a>
+                            {% endif %}
+                            <a class="dropdown-item" href="#">Report comment</a>
+                            <!-- Other dropdown items here -->
                         </div>
                     </div>
-                {% endfor %}
-            </div>
-        </div>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </table>
     </div>
-{% endblock %}
+</div>
 
-{% block botm_cont %}
 <div class="container">
     <div class="form-group" id="inputComment">
         <form action="{{ post.id }}/comment" method="post">
@@ -58,4 +72,16 @@
         </form>
     </div>
 </div>
+
+{% endblock %}
+
+{% block botm_cont %}
+{% endblock %}
+
+{% block end_script %}
+    <script>
+        $(".menu-btn").click(function() {
+            $(this).next(".menu-content").toggle();
+        });
+    </script>
 {% endblock %}

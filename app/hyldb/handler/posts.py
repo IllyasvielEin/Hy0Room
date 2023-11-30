@@ -15,7 +15,7 @@ class PostsHandler:
     def get_all_posts(filter_normal=False):
         try:
             if filter_normal:
-                res = Posts.query.filter(Posts.parent_id.is_(None)).all()
+                res = Posts.query.filter(and_(Posts.parent_id.is_(None), Posts.state == PostState.NORMAL)).all()
             else:
                 res = Posts.get()
         except Exception as e:

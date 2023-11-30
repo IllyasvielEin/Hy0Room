@@ -6,6 +6,7 @@ body {
     position: fixed;
     bottom: 0;
     width: 100%;
+    height: 50px;
 }
 
 /* styles.css */
@@ -100,24 +101,32 @@ textarea {
 
 /* 聊天室页面样式 */
 .container {
-    margin-top: 20px;
+    margin-top: 0px;
 }
 
 .nav-tabs {
-    margin-bottom: 20px;
+    margin-bottom: 0px;
 }
 
 .tab-content {
-    padding: 10px;
+    padding: 5px;
 }
 
 .table {
     font-size: 14px;
+    width: 100%;
 }
 
 /* 输入框和发送按钮 */
 #inputMsg {
-    margin-top: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 50%;
+    background-color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
 #msg {
@@ -127,4 +136,36 @@ textarea {
 /* 使消息文本不可选中 */
 .content {
     user-select: none;
+}
+
+#chatContent {
+    max-height: 500px; /* 设置消息显示区域的最大高度 */
+    overflow-y: auto; /* 添加垂直滚动条 */
+}
+
+table tr:nth-child(even) {
+    background-color: #F0F0F0 ; /* A light grey */
+}
+
+table tr:nth-child(odd) {
+    background-color: #FFFFFF ; /* White */
+}
+
+tr:nth-child(even) .btn {
+    background-color: white;
+    color: black; /* You may want to set the text color to black for visibility */
+}
+
+tr:nth-child(odd) .btn {
+    background-color: #F0F0F0 ;
+    color: black; /* You may want to set the text color to black for visibility */
+}
+
+.menu-content {
+    display: none; /* Initially the menu is invisible */
+    /* More styles of the menu can be added here */
+}
+
+.dropdown-menu a {
+    display: block;
 }

@@ -1,7 +1,7 @@
 from flask import Blueprint, session, request, render_template, redirect, url_for, current_app, flash, jsonify
 
 from app.hyldb.handler.users import UserHandler, Users
-from app.hyldb.handler.posts import PostsHandler
+from app.hyldb.handler.posts import PostsHandler, PostState
 from app.utils.generate_template import get_markup
 
 post_bp = Blueprint('post', __name__, url_prefix='/post')
@@ -42,10 +42,10 @@ def get_post(post_id: int):
         post=post
     )
 
-@post_bp.route('/delete', methods=['GET'])
-def delete_post():
+@post_bp.route('/<int:post>/delete', methods=['GET'])
+def delete_post(post: int):
     post_id = request.args.get('post_id')
-    current_app.logger.info(f"delete {post_id}")
+    # current_app.logger.info(f"delete {post_id}")
 
     if PostsHandler.delete_post(post_id=int(post_id)):
         flash(
@@ -59,8 +59,9 @@ def delete_post():
                 show_message="Delete post error, please try later"
             ), 'danger'
         )
-
-    return redirect(url_for('channels.get_channels', active_label=2))
+    if post == int(post_id):
+        return redirect(url_for('channels.get_channels', active_label=2))
+    return redirect(url_for('post.get_post', post_id=post))
 
 
 @post_bp.route('/edit', methods=['POST'])

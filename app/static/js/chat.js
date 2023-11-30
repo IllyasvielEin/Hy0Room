@@ -92,8 +92,7 @@ function format_chats(messages, userId=cur_user_id){
                 'username': decodeURI(message.username),
                 'send_at': format_date(rslt_date),
                 'content': decodeURI(message.content),
-                'same_user': decodeURI(message.user_id) === userId,
-                'revoke': message.state !== 1
+                'same_user': decodeURI(message.user_id) === userId
             }
         );
         output += rslt

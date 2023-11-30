@@ -54,7 +54,12 @@ def update(user_id: int):
     ok = True
     try:
         form = request.form.to_dict()
-        filtered_form = {k: v for k, v in form.items() if v is not None and str(v).strip() not in ['']}
+        filtered_form = {k: v for k, v in form.items()
+                         if (v is not None and
+                             str(v).strip() not in [''] and
+                             k in ['username', 'password']
+                             )
+                         }
         ok = UserHandler.update_user_info(user_id=user_id, kv=filtered_form)
         # current_app.logger.info(f"form: {form}")
         if ok:

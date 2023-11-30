@@ -17,8 +17,9 @@ User Info
             let isEditing = true;
             const editButton = document.getElementById("editButton")
             const cancelButton = document.getElementById("cancelButton")
-            const inputs = document.querySelectorAll('input');
-            {#console.log(editButton.textContent)#}
+            const allInputs = Array.from(document.querySelectorAll("input"));
+            const allowedUpdateIds = ['username', 'password', 'confirm_password']
+            const inputs = allInputs.filter(input => allowedUpdateIds.includes(input.id))
 
             editButton.addEventListener('click', event => {
                 if (isEditing) {
