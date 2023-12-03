@@ -3,7 +3,7 @@ from typing import Dict, List
 from flask import current_app
 
 from app.hyldb.models.permission import PermissionType, Permission
-from app.hyldb.models.users import Users
+from app.hyldb.models.users import Users, UserType
 from app.hyldb.models.userdetails import UserDetails
 
 
@@ -39,12 +39,14 @@ class UserHandler:
                  password: str,
                  student_id: str,
                  real_name: str,
+                 id_number: str,
                  user_id: int = None,
-                 permission: PermissionType = PermissionType.USER):
+                 permission: PermissionType = PermissionType.USER,
+                 state: UserType = UserType.WAIT_FOR_APPROVE):
         ok = True
         try:
             if user_id is not None:
-                res = Users.add(id=user_id, username=username, password=password)
+                res = Users.add(id=user_id, username=username, password=password, state=state)
             else:
                 res = Users.add(username=username, password=password)
         except Exception as e:
@@ -54,7 +56,7 @@ class UserHandler:
 
         if ok:
             try:
-                UserDetails.add(user_id=res.id, student_id=student_id, real_name=real_name)
+                UserDetails.add(user_id=res.id, student_id=student_id, real_name=real_name, id_number=id_number)
                 Permission.add(
                     user_id=res.id,
                     permission_type=permission
@@ -105,3 +107,27 @@ class UserHandler:
         except Exception as e:
             res = None
         return res
+
+    @staticmethod
+    def get_all_new():
+        try:
+            res = Users.get(filters={
+                'state': UserType.WAIT_FOR_APPROVE
+            })
+        except Exception as e:
+            current_app.logger.error(f"{e}")
+            res = []
+        return res
+
+    @staticmethod
+    def set_user_active(user_id: int):
+        try:
+            Users.update(oid=user_id, kv={
+                'state': UserType.NORMAL
+            })
+        except Exception as e:
+            current_app.logger.error(f"{e}")
+            return False
+        return True
+
+

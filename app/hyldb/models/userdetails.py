@@ -8,6 +8,7 @@ class UserDetails(db.Model, GADBase):
 
     real_name = db.Column(db.String(10), nullable=False)
     student_id = db.Column(db.String(10), unique=True, nullable=False)
+    id_number = db.Column(db.String(18), unique=True, nullable=False)
 
     user = db.relationship('Users', backref=db.backref('details', uselist=False))
 

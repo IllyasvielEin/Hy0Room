@@ -1,4 +1,5 @@
 from flask import Flask
+
 from config import get_config, ConfigType
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
@@ -21,6 +22,7 @@ def init_all(app: Flask):
     db.init_app(app)
 
     with app.app_context():
+        # db.drop_all()
         db.create_all()
 
 
@@ -29,7 +31,7 @@ def start_socketio_run(app, **kwargs):
 
 
 def init_db(app: Flask):
-    from app.hyldb.handler.users import UserHandler
+    from app.hyldb.handler.users import UserHandler, UserType
     from app.hyldb.models.permission import PermissionType
     from app.hyldb.handler.banwords import BanWordsHandler
 
@@ -47,7 +49,9 @@ def init_db(app: Flask):
                     password="admin",
                     student_id="0",
                     real_name="admin",
-                    permission=PermissionType.ROOT
+                    id_number="0",
+                    permission=PermissionType.ROOT,
+                    state=UserType.NORMAL
                 )
             except Exception as e:
                 app.logger.error(f'{e}')

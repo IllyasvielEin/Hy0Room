@@ -2,4 +2,5 @@
 .vscode
 __pycache__
 
+abc.yaml
 *.log
