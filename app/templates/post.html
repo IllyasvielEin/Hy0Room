@@ -17,7 +17,7 @@
     <h1>{{ post.title }}</h1>
     <p>Posted on {{ post.created_at }} by {{ post.creator.username }}</p>
     {% if post.creator.id == session['user_id'] %}
-        <button class="btn btn-primary btn-floating" onclick="location.href='/post/{{ post.id }}/delete?post_id={{ post.id }}'">Delete</button>
+        <button class="btn btn-primary btn-floating" onclick="location.href='{{ url_for('post.delete_post', origin_post=post.id, post_id=post.id) }}'">Delete</button>
     {% endif %}
     <hr>
 
@@ -43,9 +43,9 @@
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenu">
                             {% if comment.creator.id == session['user_id'] %}
-                            <a class="dropdown-item" href="/post/{{ post.id }}/delete?post_id={{ comment.id }}">Delete comment</a>
+                            <a class="dropdown-item" href="{{ url_for('post.delete_post', origin_post=post.id, post_id=comment.id) }}">Delete comment</a>
                             {% endif %}
-                            <a class="dropdown-item" href="#">Report comment</a>
+                            <a class="dropdown-item" href="{{ url_for('post.report_post', origin_post=post.id, post_id=comment.id) }}">Report comment</a>
                             <!-- Other dropdown items here -->
                         </div>
                     </div>
@@ -68,7 +68,7 @@
             <button id="send" type="submit" class="btn btn-md btn-primary">
                 Send
             </button>
-            <a href="{{ url_for('channels.get_channels', active_label=2) }}" class="go-back-link">Go back to post list</a>
+            <a href="{{ url_for('main.index', active_label=2) }}" class="go-back-link">Go back to post list</a>
         </form>
     </div>
 </div>

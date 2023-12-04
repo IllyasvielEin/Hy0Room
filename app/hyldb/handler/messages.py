@@ -6,6 +6,10 @@ from app.hyldb.models.messgaes import Messages, MessageState
 class MessagesHandler:
 
     @staticmethod
+    def get_messgae(message_id: int):
+        return Messages.get_one_by_id(oid=message_id)
+
+    @staticmethod
     def add_message(user_id: int, channel_id: int, content: str, state: MessageState = MessageState.NORMAL):
         ok = True
         try:

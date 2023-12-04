@@ -1,9 +1,8 @@
 import urllib.parse
-from flask_socketio import disconnect
 
-from flask import Blueprint, session, request, render_template, redirect, url_for, current_app
+from flask import Blueprint, current_app
 
-from app.extensions import socketio, message_filter, user_manager
+from app.extensions import socketio, message_filter
 from app.hyldb.handler.messages import MessagesHandler, MessageState
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
@@ -49,3 +48,4 @@ def del_msg(data):
             'mes_data_id': mes_data_id
         }
     )
+

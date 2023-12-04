@@ -53,3 +53,17 @@ class PostsHandler:
         )
 
         return ok
+
+    @staticmethod
+    def judge_post(post_id: int, guilty: bool):
+
+        state = PostState.FORBIDDEN if guilty else PostState.NORMAL
+        current_app.logger.info(state.name)
+        ok = Posts.update(
+            oid=post_id,
+            kv={
+                'state': state
+            }
+        )
+
+        return ok

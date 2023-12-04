@@ -16,6 +16,7 @@ class CreateBase:
         except Exception as e:
             current_app.logger.error(f'{e}')
             db.session.rollback()
+            instance = None
         return instance
 
 

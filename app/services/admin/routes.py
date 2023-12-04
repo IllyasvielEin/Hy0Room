@@ -1,5 +1,10 @@
 from flask import Blueprint, session, request, render_template, redirect, url_for, current_app, flash, jsonify
 
+from app.hyldb.handler.messages import MessagesHandler
+from app.hyldb.handler.permission import PermissionHandler
+from app.hyldb.handler.posts import PostsHandler
+from app.hyldb.handler.reports import ReportsHandler, ReportType
+from app.hyldb.models.messgaes import MessageState
 from app.utils.generate_template import get_markup
 
 from app.extensions import message_filter
@@ -34,6 +39,8 @@ def index():
 
     new_users = UserHandler.get_all_new()
 
+    reports = ReportsHandler.get_all_needed_judge()
+
     active_label = request.args.get('active_label')
     return render_template(
         "admin.html",
@@ -42,7 +49,8 @@ def index():
         channels=channels,
         banned_words=banned_words,
         active_label=active_label,
-        new_users=new_users
+        new_users=new_users,
+        reported_entries=reports
     )
 
 
@@ -129,3 +137,68 @@ def reject_new_user(user_id: int):
         ), category
     )
     return redirect(url_for('admin.index', active_label=4))
+
+
+@admin_bp.route('/ban_user/<int:user_id>', methods=['GET'])
+def ban_user(user_id):
+    show_messages = 'Ban ok'
+    category = 'success'
+
+    this_user_id = session['user_id']
+    if not PermissionHandler.a_is_higher_permission(this_user_id, user_id):
+        show_messages = 'Permission deny'
+        category = 'danger'
+
+    ok = UserHandler.update_user_info(
+        user_id,
+        kv={
+            'state': UserType.BANNED
+            # 'state_descript':
+        }
+    )
+    if not ok:
+        show_messages = 'Ban error'
+        category = 'danger'
+
+    flash(
+        get_markup(
+            show_message=show_messages
+        ), category
+    )
+
+    return redirect(url_for('admin.index', activbe_label=5))
+
+@admin_bp.route('/report/revoke/<int:report_id>', methods=['GET'])
+def judge_this(report_id: int):
+    show_messages = 'Judge ok'
+    category = 'success'
+
+    this_user_id = session['user_id']
+    guilty: bool = request.args.get('guilty').lower() == 'true'
+    ok = ReportsHandler.find_guilty(report_id=report_id, guilty=guilty)
+
+    if ok:
+        report = ReportsHandler.get_one(report_id)
+        content_id = report.content_id
+        if guilty:
+            if report.content_type == ReportType.CHANNEL_CHAT:
+                MessagesHandler.set_state(content_id, MessageState.VIOLATION)
+            elif report.content_type == ReportType.POST:
+                PostsHandler.judge_post(post_id=content_id, guilty=True)
+        else:
+            if report.content_type == ReportType.CHANNEL_CHAT:
+                MessagesHandler.set_state(content_id, MessageState.NORMAL)
+            elif report.content_type == ReportType.POST:
+                PostsHandler.judge_post(post_id=content_id, guilty=False)
+
+    else:
+        show_messages = 'Judge error'
+        category = 'danger'
+
+    flash(
+        get_markup(
+            show_message=show_messages
+        ), category
+    )
+
+    return redirect(url_for('admin.index', activbe_label=5))

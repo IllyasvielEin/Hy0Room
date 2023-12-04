@@ -74,7 +74,7 @@ def login():
                     ), 'danger'
                 )
                 return redirect(url_for('auth.login'))
-        return redirect(url_for("channels.get_channels"))
+        return redirect(url_for('main.index'))
 
 
 @auth_bp.route("/register", methods=['POST'])
