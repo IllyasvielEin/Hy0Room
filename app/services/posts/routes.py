@@ -22,7 +22,8 @@ def create_post():
     title = request.form.get('post_title')
     content = request.form.get('post_content')
 
-    if PostsHandler.add_post(user_id=user_id, title=title, content=content):
+    ok = PostsHandler.add_post(user_id=user_id, title=title, content=content, parent_id=-1)
+    if ok:
         flash(
             get_markup(
                 show_message="Add post success"
@@ -40,7 +41,7 @@ def create_post():
 @post_bp.route('/<int:post_id>', methods=['GET'])
 def get_post(post_id: int):
     post = PostsHandler.get_one_post(post_id)
-    if post.parent_id is not None:
+    if post.parent_id != post_id:
         return render_template(url_for('main.index', active_label=2))
     return render_template(
         'post.html',
@@ -68,12 +69,21 @@ def delete_post(origin_post: int, post_id: int):
     return redirect(url_for('post.get_post', post_id=origin_post))
 
 
-@post_bp.route('/edit', methods=['POST'])
-def edit_post():
-    post_id = request.args.get('post_id')
-    current_app.logger.info(f"edit {post_id}")
+@post_bp.route('/<int:origin_post>/edit/<int:post_id>', methods=['POST'])
+def edit_post(origin_post: int, post_id: int):
+    show_messages = 'Edit ok'
+    category = 'success'
 
-    return redirect(url_for('main.index', active_label=2))
+    user_id = current_user.get_id()
+    post = PostsHandler.get_one_post(post_id)
+
+    flash(
+        get_markup(
+            show_message=show_messages
+        ), category
+    )
+
+    return redirect(url_for('post.get_post', post_id=origin_post))
 
 
 @post_bp.route('/<int:post_id>/comment', methods=['POST'])

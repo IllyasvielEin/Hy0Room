@@ -15,7 +15,7 @@ class PostsHandler:
     def get_all_posts(filter_normal=False):
         try:
             if filter_normal:
-                res = Posts.query.filter(and_(Posts.parent_id.is_(None), Posts.state == PostState.NORMAL)).all()
+                res = Posts.query.filter(and_(Posts.parent_id == Posts.id, Posts.state == PostState.NORMAL)).all()
             else:
                 res = Posts.get()
         except Exception as e:
@@ -27,10 +27,27 @@ class PostsHandler:
     def add_post(user_id: int, content: str, title: None | str = None, parent_id: int | None = None):
         ok = True
         try:
-            Posts.add(user_id=user_id, title=title, content=content, parent_id=parent_id)
+            if parent_id == -1:
+                res = Posts.add(user_id=user_id, title=title, content=content)
+                Posts.update(oid=res.id, kv={
+                    'parent_id': res.id
+                })
+            else:
+                res = Posts.add(user_id=user_id, title=title, content=content, parent_id=parent_id)
         except Exception as e:
             current_app.logger.error(f"{e}")
+            res = None
             ok = False
+        return res, ok
+
+    @staticmethod
+    def set_parent(post_id: int, parent_id: int):
+        _, ok = Posts.update(
+            oid=post_id,
+            kv={
+                'parent_id': parent_id
+            }
+        )
         return ok
 
     @staticmethod

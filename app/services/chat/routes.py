@@ -1,11 +1,30 @@
 import urllib.parse
 
 from flask import Blueprint, current_app
+from flask_socketio import join_room, leave_room, emit
 
 from app.extensions import socketio, message_filter
 from app.hyldb.handler.messages import MessagesHandler, MessageState
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')
+
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    current_app.logger.info(f'join {room}')
+    emit('status', {
+        'msg': 'Connected',
+        'room': room
+    }, room=room
+     )
+
+@socketio.on('leave')
+def on_leave(data):
+    room = data['room']
+    leave_room(room)
+    emit('status', {'msg': 'Disconnected', 'room': room}, room=room)
 
 
 @socketio.on("send msg")
@@ -21,7 +40,7 @@ def emit_msg(data):
         channel_id = urllib.parse.unquote(data['channel_id'])
         res, ok = MessagesHandler.add_message(user_id=int(user_id), channel_id=int(channel_id), content=content, state=content_state)
         if ok:
-            socketio.emit(
+            emit(
                 'emit msg',
                 {
                     'mes_id': res.id,
@@ -30,7 +49,7 @@ def emit_msg(data):
                     'send_at': data['send_at'],
                     'content': fcontent,
                     'channel_id': channel_id
-                }
+                }, room=channel_id
             )
         else:
             current_app.logger.error(f"mes insert error")
@@ -41,11 +60,12 @@ def del_msg(data):
     mes_data_id = data['id']
     # current_app.logger.info(f"{mes_data_id} delete")
     MessagesHandler.set_state(mes_id=mes_data_id, state=MessageState.WITHDRAWN)
-    socketio.emit(
+    emit(
         'recall msg',
         {
             'channel_id': channel_id,
             'mes_data_id': mes_data_id
-        }
+        },
+        room=channel_id
     )
 

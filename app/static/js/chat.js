@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket = io.connect(location.protocol + "//" + document.location.host);
 
     socket.on('connect', () => {
+        socket.emit('join', {room: cur_channel_id});
+
         document.querySelector("#send").onclick = () => {
             const msg = document.querySelector('#msg').value;
             const post_time = new Date();
@@ -61,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // console.log('null elem')
         }
     });
+
+    socket.on('disconnect', function() {
+        socket.emit('leave', {room: cur_channel_id});
+    })
 });
 
 document.addEventListener("click", evt => {
