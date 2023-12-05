@@ -3,7 +3,7 @@ import urllib.parse
 from flask import Blueprint, current_app
 from flask_socketio import join_room, leave_room, emit
 
-from app.extensions import socketio, message_filter
+from app.extensions import socketio, message_filter, user_manager
 from app.hyldb.handler.messages import MessagesHandler, MessageState
 
 chat_bp = Blueprint('chat', __name__, url_prefix='/chat')

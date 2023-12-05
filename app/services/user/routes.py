@@ -23,25 +23,19 @@ def profile(user_id: int):
     if user_id == 1 and current_user.get_id() == 1:
         return redirect(url_for('admin.index'))
 
-    res, ok = UserHandler.get_user_by_id(user_id)
-    if not ok or res is None:
+    user, ok = UserHandler.get_user_by_id(user_id)
+    if not ok or user is None:
         flash(
             get_markup(
                 show_message="Empty user"
             ), 'danger'
         )
-        return redirect(url_for('user.profile', user_id=user_id))
-
-    user_info = {
-        'username': res.username,
-        'real_name': res.details.real_name,
-        'student_id': res.details.student_id
-    }
+        return redirect(url_for('main.index'))
 
     return render_template(
         "user.html",
         view_user_id=user_id,
-        user_info=user_info
+        user_info=user
     )
 
 
