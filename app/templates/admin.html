@@ -34,6 +34,7 @@
                         <th>Name</th>
                         <th>Description</th>
                         <th>Creator</th>
+                        <th>Actions</th>
                     </tr>
 
                     {% for channel in channels %}
@@ -41,6 +42,9 @@
                             <td>{{ channel.name }}</td>
                             <td>{{ channel.description }}</td>
                             <td>{{ channel.creator.username }}</td>
+                            <td>
+                                <a href="{{ url_for('channels.get_channel', channel_id=channel.id) }}" class="btn btn-primary">进入</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -53,6 +57,7 @@
                         <th>Username</th>
                         <th>Student Id</th>
                         <th>Real Name</th>
+                        <th>Actions</th>
                     </tr>
 
                     {% for user in users %}
@@ -61,6 +66,9 @@
                             <td>{{ user.username }}</td>
                             <td>{{ user.details.student_id }}</td>
                             <td>{{ user.details.real_name }}</td>
+                            <td>
+                                <a href="{{ url_for('user.profile', user_id=user.id) }}" class="btn btn-primary">查看</a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>

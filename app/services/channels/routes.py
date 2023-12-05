@@ -125,7 +125,7 @@ def add_channel():
     return redirect(url_for(return_content))
 
 
-@channels_bp.route("search_channel", methods=['GET'])
+@channels_bp.route("/search_channel", methods=['GET'])
 def search_channel():
     channel_name = request.args.get('search_channel')
     channel, ok = ChannelsHandler.get_channel_by_name(channel_name)

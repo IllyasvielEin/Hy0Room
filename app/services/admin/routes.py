@@ -169,7 +169,7 @@ def ban_user(user_id):
 
     return redirect(url_for('admin.index', activbe_label=5))
 
-@admin_bp.route('/report/revoke/<int:report_id>', methods=['GET'])
+@admin_bp.route('/report/<int:report_id>', methods=['GET'])
 def judge_this(report_id: int):
     show_messages = 'Judge ok'
     category = 'success'

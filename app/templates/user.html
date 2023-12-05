@@ -1,7 +1,7 @@
 <!-- templates/userinfo.html -->
 {% extends "_base.html" %}
 
-{% if view_user_id|int == current_user.get_id()|int %}
+{% if view_user_id|int == current_user.get_id() %}
 {% set is_myself = True %}
 {% else %}
 {% set is_myself = False %}
@@ -9,6 +9,42 @@
 
 {% block title %}
 User Info
+{% endblock %}
+
+{% block disp %}
+<form id="editForm" action="/user/{{ current_user.get_id() }}/update" method="post">
+    <div class="modal-body">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" class="form-control validate" value="{{ user_info.username }}" readonly>
+        <br>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-control validate" placeholder="Your password" readonly>
+        <br>
+        <label for="confirm_password">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" class="form-control validate" placeholder="Confirm your password" readonly>
+        <br>
+        <label for="real_name">真实姓名</label>
+        <input type="text" id="real_name" name="real_name" class="form-control validate" value="{{ user_info.details.real_name }}" readonly>
+        <br>
+        <label for="real_name">学号</label>
+        <input type="text" id="student_id" name="student_id" class="form-control validate" value="{{ user_info.details.student_id }}" readonly>
+        {% if user_info.id == current_user.get_id() %}
+        <br>
+        <label for="real_name">身份证号</label>
+        <input type="text" id="id_number" name="id_number" class="form-control validate" value="{{ user_info.details.id_number }}" readonly>
+        {% endif %}
+    </div>
+    {% if is_myself %}
+    <div class="modal-footer">
+        <button id="cancelButton" type="button" class="btn btn-lg btn-secondary" style="display: none;">
+            Cancel
+        </button>
+        <button id= "editButton" data-id="editButton" type="button" class="btn btn-lg btn-primary">
+            Edit
+        </button>
+    </div>
+    {% endif %}
+</form>
 {% endblock %}
 
 {% block end_script %}
@@ -47,35 +83,4 @@ User Info
             })
         </script>
     {% endif %}
-{% endblock %}
-
-{% block disp %}
-<form id="editForm" action="/user/{{ current_user.get_id() }}/update" method="post">
-    <div class="modal-body">
-        <label for="username">Username</label>
-        <input type="text" id="username" name="username" class="form-control validate" value="{{ user_info.username }}" readonly>
-        <br>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" class="form-control validate" placeholder="Your password" readonly>
-        <br>
-        <label for="confirm_password">Confirm Password</label>
-        <input type="password" id="confirm_password" name="confirm_password" class="form-control validate" placeholder="Confirm your password" readonly>
-        <br>
-        <label for="real_name">真实姓名</label>
-        <input type="text" id="real_name" name="real_name" class="form-control validate" value="{{ user_info.real_name }}" readonly>
-        <br>
-        <label for="real_name">学号</label>
-        <input type="text" id="student_id" name="student_id" class="form-control validate" value="{{ user_info.student_id }}" readonly>
-    </div>
-    {% if is_myself %}
-    <div class="modal-footer">
-        <button id="cancelButton" type="button" class="btn btn-lg btn-secondary" style="display: none;">
-            Cancel
-        </button>
-        <button id= "editButton" data-id="editButton" type="button" class="btn btn-lg btn-primary">
-        Edit
-        </button>
-    </div>
-    {% endif %}
-</form>
 {% endblock %}
