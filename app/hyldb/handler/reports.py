@@ -46,14 +46,14 @@ class ReportsHandler:
     @staticmethod
     def find_guilty(report_id: int, guilty: bool):
         if guilty:
-            ok = Reports.update(
+            _, ok = Reports.update(
                 oid=report_id,
                 kv={
                     'state': ReportState.GUILTY
                 }
             )
         else:
-            ok = Reports.update(
+            _, ok = Reports.update(
                 oid=report_id,
                 kv={
                     'state': ReportState.NOTGUILTY

@@ -1,7 +1,7 @@
 <!-- templates/userinfo.html -->
 {% extends "_base.html" %}
 
-{% if view_user_id|int == session['user_id']|int %}
+{% if view_user_id|int == current_user.get_id()|int %}
 {% set is_myself = True %}
 {% else %}
 {% set is_myself = False %}
@@ -50,7 +50,7 @@ User Info
 {% endblock %}
 
 {% block disp %}
-<form id="editForm" action="/user/{{ session['user_id'] }}/update" method="post">
+<form id="editForm" action="/user/{{ current_user.get_id() }}/update" method="post">
     <div class="modal-body">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" class="form-control validate" value="{{ user_info.username }}" readonly>

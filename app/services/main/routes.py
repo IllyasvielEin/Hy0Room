@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, current_app
+from flask_login import current_user
 
 from app.hyldb.handler.channels import ChannelsHandler
 from app.hyldb.handler.posts import PostsHandler
@@ -10,11 +11,11 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index(active_label=1):
-    if 'user_id' not in session:
+    if not current_user.is_authenticated:
         return redirect(url_for('auth.login'))
 
-    user_id = session.get('user_id')
-    username = session.get('username')
+    user_id = current_user.get_id()
+    username = current_user.get_username()
     if username is None:
         return redirect(url_for('auth.login'))
 
@@ -46,9 +47,6 @@ def index(active_label=1):
                     'error.html'
                 )
 
-            # current_app.logger.info(f"Get channels: {channels}")
-            last_visit = session.get('last_visit')
-
             label = request.args.get('active_label')
             if label is not None:
                 active_label = int(label)
@@ -57,7 +55,6 @@ def index(active_label=1):
                 user_id=user_id,
                 username=username,
                 channels=channels,
-                last_visit=last_visit,
                 posts=posts,
                 active_label=active_label
             )

@@ -43,7 +43,7 @@ Channels
                     </div>
                     <div class="modal-body">
                         <label for="login_username">Username</label>
-                        <input type="text" id="login_username" name="username" class="form-control validate" placeholder="Your display name">
+                        <input type="text" id="login_username" name="username" class="form-control validate" placeholder="用户名或学号">
                         <br>
                         <label for="login_password">Password</label>
                         <input type="password" id="login_password" name="password" class="form-control validate" placeholder="Your password">
@@ -198,7 +198,7 @@ Channels
                         {% for post in posts %}
                         <tr>
                             <td><a href="{{ url_for('post.get_post', post_id=post.id) }}">{{ post.title }}</a></td>
-                            <td><a href="{{ url_for('user.profile', user_id=session['user_id']) }}">{{ post.creator.username }}</a></td>
+                            <td><a href="{{ url_for('user.profile', user_id=current_user.get_id()) }}">{{ post.creator.username }}</a></td>
                             <td><small class="text-muted">{{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small></td>
 {#                            <td>#}
 {#                                <a href="{{ url_for('post.comment_post', post_id=post.id) }}" class="btn btn-primary">Write comment</a>#}

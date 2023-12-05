@@ -1,6 +1,7 @@
 import json
 
-from flask import Blueprint, request, session, redirect, url_for, current_app, flash, render_template
+from flask import Blueprint, request, redirect, url_for, session, current_app, flash, render_template
+from flask_login import current_user
 
 from app.hyldb.handler.channels import ChannelsHandler
 from app.hyldb.handler.posts import PostsHandler
@@ -17,7 +18,7 @@ channels_bp = Blueprint('channels', __name__, url_prefix="/channels")
 
 @channels_bp.before_request
 def require_login():
-    if 'user_id' not in session:
+    if not current_user.is_authenticated:
         flash(
             get_markup(
                 show_message="Please Login"
@@ -27,8 +28,8 @@ def require_login():
 
 @channels_bp.route("/<int:channel_id>", methods=['GET'])
 def get_channel(channel_id):
-    user_id = session.get('user_id')
-    username = session.get('username')
+    user_id = current_user.get_id()
+    username = current_user.get_username()
 
     if not user_manager.add_user(channel_id=channel_id, user=user_id):
         flash(
@@ -80,7 +81,7 @@ def add_channel():
     category = None
     return_content = "main.index"
 
-    request_user_id = session['user_id']
+    request_user_id = current_user.get_id()
     new_channel = request.form.get('new_channel').strip()
     channel_description = request.form.get('channel_description').strip()
 
@@ -136,8 +137,8 @@ def search_channel():
         )
         return redirect(url_for('main.index'))
 
-    user_id = session['user_id']
-    username = session['username']
+    user_id = current_user.get_id()
+    username = current_user.get_username()
     last_visit = session.get('last_visit_channel_name')
 
     return render_template(
@@ -161,7 +162,7 @@ def report_message(channel_id, message_id):
             content_id=message_id,
             content=message.content,
             content_type=ReportType.CHANNEL_CHAT,
-            accuser_id=int(session['user_id']),
+            accuser_id=int(current_user.get_id()),
             accused_id=message.user.id
         )
         if res is None:

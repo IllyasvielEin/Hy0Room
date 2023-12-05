@@ -1,6 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
+from flask import current_app
+from flask_login import UserMixin
 from app.extensions import db
 from app.hyldb.models.basehandle.mixin import GADBase
 
@@ -12,7 +14,7 @@ class UserType(Enum):
     BANNED = 4
 
 
-class Users(db.Model, GADBase):
+class Users(db.Model, GADBase, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     crated_at = db.Column(db.DateTime, default=datetime.utcnow(), nullable=False)
@@ -30,3 +32,14 @@ class Users(db.Model, GADBase):
 
     def __hash__(self):
         return hash(self.id)
+
+    def get_id(self):
+        return self.id
+
+    def get_username(self):
+        return self.username
+
+    def is_active(self):
+        return self.state == UserType.NORMAL
+
+

@@ -1,4 +1,5 @@
 from flask import Blueprint, session, request, render_template, redirect, url_for, current_app, flash, jsonify
+from flask_login import current_user
 
 from app.hyldb.handler.reports import ReportsHandler
 from app.hyldb.handler.users import UserHandler, Users
@@ -11,13 +12,13 @@ post_bp = Blueprint('post', __name__, url_prefix='/post')
 
 @post_bp.before_request
 def require_login():
-    if 'user_id' not in session:
+    if not current_user.is_authenticated:
         return redirect(url_for('main.index'))
 
 @post_bp.route('/add', methods=['POST'])
 def create_post():
 
-    user_id = session['user_id']
+    user_id = current_user.get_id()
     title = request.form.get('post_title')
     content = request.form.get('post_content')
 
@@ -77,7 +78,7 @@ def edit_post():
 
 @post_bp.route('/<int:post_id>/comment', methods=['POST'])
 def comment_post(post_id: int):
-    user_id = session['user_id']
+    user_id = current_user.get_id()
     parent_id = request.form.get('parent_id')
     title = request.form.get('post_title')
     content = request.form.get('post_content')
@@ -103,7 +104,7 @@ def report_post(origin_post: int, post_id: int):
     show_messages = 'Report ok'
     category = 'success'
 
-    user_id = session['user_id']
+    user_id = current_user.get_id()
     post = PostsHandler.get_one_post(post_id)
     if post is not None:
         res = ReportsHandler.add_reports(

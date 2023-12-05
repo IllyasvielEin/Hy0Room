@@ -3,6 +3,7 @@ from flask import Flask
 from config import get_config, ConfigType
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
 from app.utils.usermanager import UserManager
 from app.utils.messgaefilter import MessageFilter
@@ -11,6 +12,7 @@ from app.utils.messgaefilter import MessageFilter
 socketio = SocketIO()
 online_user = UserManager()
 db = SQLAlchemy()
+login_manager = LoginManager()
 
 message_filter = MessageFilter()
 user_manager = UserManager()
@@ -20,6 +22,7 @@ def init_all(app: Flask):
     app.config.from_object(get_config(ConfigType.DevelopmentConfig))
     socketio.init_app(app)
     db.init_app(app)
+    login_manager.init_app(app)
 
     with app.app_context():
         # db.drop_all()

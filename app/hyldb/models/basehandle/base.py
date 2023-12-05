@@ -79,14 +79,17 @@ class DeleteBase:
 class UpdateBase:
     @classmethod
     def update(cls, oid=None, find_filter: Dict | None = None, kv=None):
+        ok = True
         if (oid is None and find_filter is None) or kv is None:
             current_app.logger.error(f"Empty oid or kv: {oid}, {kv}")
-            return False
+            return None, False
 
+        instance = None
         if oid is not None:
             instance = cls.query.get(oid)
         elif find_filter is not None:
             instance = cls.query.filter_by(**find_filter).first()
+
         if instance:
             try:
                 for key, value in kv.items():
@@ -96,5 +99,5 @@ class UpdateBase:
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
-                return False
-        return True
+                return None, False
+        return instance, True

@@ -24,7 +24,7 @@
             </div>
             {% if username is not none %}
                 <form class="navbar-form navbar-right" action="{{ url_for('auth.logout') }}" method="get">
-                    <span>Welcome, <a href="{{ url_for('user.profile', user_id=session['user_id']) }}">{{ session['username'] }}</a>.&nbsp;&nbsp;</span>
+                    <span>Welcome, <a href="{{ url_for('user.profile', user_id=current_user.get_id()) }}">{{ current_user.get_username() }}</a>.&nbsp;&nbsp;</span>
                     <button id="logout" class="btn btn-default btn-sm">Log out</button>
                 </form>
             {% endif %}

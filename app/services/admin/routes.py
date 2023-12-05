@@ -1,4 +1,5 @@
-from flask import Blueprint, session, request, render_template, redirect, url_for, current_app, flash, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, current_app, flash, jsonify
+from flask_login import current_user
 
 from app.hyldb.handler.messages import MessagesHandler
 from app.hyldb.handler.permission import PermissionHandler
@@ -17,7 +18,7 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin_bp.before_request
 def require_login():
-    if 'user_id' not in session or session['user_id'] != 1:
+    if not current_user.is_authenticated or current_user.get_id() != 1:
         flash(
             get_markup(
                 show_message='permission Denied'
@@ -28,8 +29,8 @@ def require_login():
 
 @admin_bp.route("/", methods=['GET'])
 def index():
-    user_id = session['user_id']
-    user_name = session['username']
+    user_id = current_user.get_id()
+    user_name = current_user.get_username()
 
     users = UserHandler.get_all()
 
@@ -97,7 +98,7 @@ def remove_banwords():
 
 @admin_bp.route('/user/<int:user_id>/approve')
 def approve_new_user(user_id: int):
-    ok = UserHandler.update_user_info(
+    res, ok = UserHandler.update_user_info(
         user_id=user_id,
         kv={
             'state': UserType.NORMAL
@@ -119,7 +120,7 @@ def approve_new_user(user_id: int):
 
 @admin_bp.route('/user/<int:user_id>/reject')
 def reject_new_user(user_id: int):
-    ok = UserHandler.update_user_info(
+    res, ok = UserHandler.update_user_info(
         user_id=user_id,
         kv={
             'state': UserType.REGISTER_REJECTED
@@ -144,12 +145,12 @@ def ban_user(user_id):
     show_messages = 'Ban ok'
     category = 'success'
 
-    this_user_id = session['user_id']
+    this_user_id = current_user.get_id()
     if not PermissionHandler.a_is_higher_permission(this_user_id, user_id):
         show_messages = 'Permission deny'
         category = 'danger'
 
-    ok = UserHandler.update_user_info(
+    res, ok = UserHandler.update_user_info(
         user_id,
         kv={
             'state': UserType.BANNED
@@ -173,7 +174,7 @@ def judge_this(report_id: int):
     show_messages = 'Judge ok'
     category = 'success'
 
-    this_user_id = session['user_id']
+    this_user_id = current_user.get_id()
     guilty: bool = request.args.get('guilty').lower() == 'true'
     ok = ReportsHandler.find_guilty(report_id=report_id, guilty=guilty)
 

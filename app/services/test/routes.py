@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, request, session, current_app
+from flask_login import current_user
+
 from app.hyldb.handler.users import UserHandler
 
 test_bp = Blueprint('test', __name__, url_prefix="/test")
@@ -6,7 +8,7 @@ test_bp = Blueprint('test', __name__, url_prefix="/test")
 
 @test_bp.route('/')
 def index():
-    username = session.get('username')
+    username = current_user.get_username()
     if username is None:
         return render_template("_base.html", username=username)
     return 'hyl, yyds!'
@@ -58,7 +60,7 @@ def register():
 
 @test_bp.route('/logout', methods=['GET'])
 def logout():
-    if 'username' in session:
+    if not current_user.is_authenticated:
         current_app.logger.info(f"User {session.get('token')} logout")
         return "logout success"
     return "Empty token", 400

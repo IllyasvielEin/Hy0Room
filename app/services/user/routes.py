@@ -1,4 +1,5 @@
 from flask import Blueprint, session, request, render_template, redirect, url_for, current_app, flash, jsonify
+from flask_login import current_user, logout_user, login_user
 
 from app.hyldb.handler.users import UserHandler, Users
 from app.utils.generate_template import get_markup
@@ -8,7 +9,7 @@ user_bp = Blueprint('user', __name__, url_prefix='/user')
 
 @user_bp.before_request
 def require_login():
-    if 'user_id' not in session:
+    if not current_user.is_authenticated:
         # flash(
         #     get_markup(
         #         show_message="Please Login"
@@ -19,7 +20,7 @@ def require_login():
 
 @user_bp.route('/<int:user_id>')
 def profile(user_id: int):
-    if user_id == 1 and session['user_id'] == 1:
+    if user_id == 1 and current_user.get_id() == 1:
         return redirect(url_for('admin.index'))
 
     res, ok = UserHandler.get_user_by_id(user_id)
@@ -47,7 +48,7 @@ def profile(user_id: int):
 @user_bp.route('/<int:user_id>/update', methods=['POST'])
 def update(user_id: int):
 
-    request_user_id = session['user_id']
+    request_user_id = current_user.get_id()
     if int(request_user_id) != user_id:
         return jsonify({'status': 'not matching user_id'}), 400
 
@@ -60,10 +61,11 @@ def update(user_id: int):
                              k in ['username', 'password']
                              )
                          }
-        ok = UserHandler.update_user_info(user_id=user_id, kv=filtered_form)
+        res, ok = UserHandler.update_user_info(user_id=user_id, kv=filtered_form)
         # current_app.logger.info(f"form: {form}")
         if ok:
-            session['username'] = form.get('username')
+            logout_user()
+            login_user(res)
     except Exception as e:
         current_app.logger.error(f'{e}')
         ok = False

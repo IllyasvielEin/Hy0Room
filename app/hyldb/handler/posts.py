@@ -36,7 +36,7 @@ class PostsHandler:
     @staticmethod
     def modify_post(post_id: int, new_content: str):
 
-        ok = Posts.update(
+        _, ok = Posts.update(
             oid=post_id, kv={
                 'content': new_content
             })
@@ -46,7 +46,7 @@ class PostsHandler:
     @staticmethod
     def delete_post(post_id: int):
 
-        ok = Posts.update(
+        _, ok = Posts.update(
             oid=post_id, kv={
                 'state': PostState.DELETE
             }
@@ -59,7 +59,7 @@ class PostsHandler:
 
         state = PostState.FORBIDDEN if guilty else PostState.NORMAL
         current_app.logger.info(state.name)
-        ok = Posts.update(
+        _, ok = Posts.update(
             oid=post_id,
             kv={
                 'state': state

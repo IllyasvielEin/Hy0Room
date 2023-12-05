@@ -81,13 +81,13 @@ class UserHandler:
 
     @staticmethod
     def update_user_info(user_id: int, kv: Dict):
-        ok = Users.update(oid=user_id, kv=kv)
+        res, ok = Users.update(oid=user_id, kv=kv)
         if ok:
             tmp_filter = {
                 'user_id': user_id
             }
-            ok = UserDetails.update(find_filter=tmp_filter, kv=kv)
-        return ok
+            _, ok = UserDetails.update(find_filter=tmp_filter, kv=kv)
+        return res, ok
 
     @staticmethod
     def get_all():
@@ -129,5 +129,34 @@ class UserHandler:
             current_app.logger.error(f"{e}")
             return False
         return True
+
+    @staticmethod
+    def authenticate(username, password):
+        ok = True
+        res = None
+        try:
+            res = Users.get(
+                filters={
+                    'username': username,
+                    'password': password
+                },
+                limitc=1
+            )
+
+            if res is None:
+                student_id_res = UserDetails.get(
+                    filters={
+                        'student_id': username
+                    },
+                    limitc=1
+                )
+                if student_id_res is not None and student_id_res.user.password == password:
+                    res = student_id_res.user
+        except Exception as e:
+            current_app.logger.error(f"{e}")
+            res = None
+            ok = False
+
+        return res, ok
 
 

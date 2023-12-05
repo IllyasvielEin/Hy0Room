@@ -16,7 +16,7 @@
 <div class="container">
     <h1>{{ post.title }}</h1>
     <p>Posted on {{ post.created_at }} by {{ post.creator.username }}</p>
-    {% if post.creator.id == session['user_id'] %}
+    {% if post.creator.id == current_user.get_id()|int %}
         <button class="btn btn-primary btn-floating" onclick="location.href='{{ url_for('post.delete_post', origin_post=post.id, post_id=post.id) }}'">Delete</button>
     {% endif %}
     <hr>
@@ -42,7 +42,7 @@
                             <i class="fas fa-bars"></i>
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenu">
-                            {% if comment.creator.id == session['user_id'] %}
+                            {% if comment.creator.id == current_user.get_id()|int %}
                             <a class="dropdown-item" href="{{ url_for('post.delete_post', origin_post=post.id, post_id=comment.id) }}">Delete comment</a>
                             {% endif %}
                             <a class="dropdown-item" href="{{ url_for('post.report_post', origin_post=post.id, post_id=comment.id) }}">Report comment</a>

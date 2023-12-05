@@ -1,4 +1,5 @@
-from flask import Blueprint, session, request, redirect, url_for, flash, current_app, render_template
+from flask import Blueprint, request, redirect, url_for, flash, current_app, render_template, session
+from flask_login import login_user, current_user, logout_user
 
 from app.extensions import user_manager
 from app.hyldb.models.users import UserType
@@ -43,38 +44,28 @@ def login():
                 )
             )
             return redirect(url_for('auth.login'))
-        res, ok = UserHandler.get_user_by_name(username)
+
+        user, ok = UserHandler.authenticate(username=username, password=password)
+
         if not ok:
             flash(
                 get_markup(
-                    show_message="Internal error"
-                )
+                    show_message=f"Internal error"
+                ), 'danger'
             )
             return redirect(url_for('auth.login'))
-        if res is None:
+
+        if user is None:
             flash(
                 get_markup(
                     iclass="fa fa-2x fa-info-circle",
-                    show_message=f" User {username} not found"
+                    show_message=f" User {username} not found or error password"
                 ), 'info'
             )
             return redirect(url_for('auth.login'))
         else:
-            if password == str(res.password):
-                if res.state != UserType.NORMAL:
-                    flash_login_markup(res.state)
-                    return redirect(url_for('auth.login'))
-                else:
-                    session['username'] = username
-                    session['user_id'] = res.id
-            else:
-                flash(
-                    get_markup(
-                        show_message="Error password"
-                    ), 'danger'
-                )
-                return redirect(url_for('auth.login'))
-        return redirect(url_for('main.index'))
+            login_user(user)
+            return redirect(url_for('main.index'))
 
 
 @auth_bp.route("/register", methods=['POST'])
@@ -129,14 +120,15 @@ def register():
 
 @auth_bp.route('/logout')
 def logout():
-    if 'username' in session:
-        session.clear()
+    if current_user.is_authenticated:
         flash(
             get_markup(
                 iclass="fa fa-2x fa-check-square-o",
                 show_message=f"Logged out"
             )
         )
-        user_id = session.get('user_id')
+        user_id = current_user.get_id()
         user_manager.remove_user(user_id)
+        logout_user()
+        session.clear()
     return redirect(url_for('auth.login'))
