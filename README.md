@@ -12,5 +12,5 @@
 python -m main
 ```
 
-默认端口为5000，浏览器访问https://localhost:5000即可
+默认端口为5000，浏览器访问https://localhost:5000 即可
 
