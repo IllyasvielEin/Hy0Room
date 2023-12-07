@@ -58,3 +58,37 @@ def index(active_label=1):
                 posts=posts,
                 active_label=active_label
             )
+
+
+@main_bp.route("/search_channel", methods=['GET'])
+def search_channel():
+    channel_name = request.args.get('search_channel')
+    channel, ok = ChannelsHandler.get_channel_by_name(channel_name)
+    if not ok:
+        flash(
+            get_markup(
+                show_message="Internal error"
+            ), 'danger'
+        )
+        return redirect(url_for('main.index'))
+
+    user_id = current_user.get_id()
+    username = current_user.get_username()
+    last_visit = session.get('last_visit_channel_name')
+
+    posts = PostsHandler.get_all_posts(filter_normal=True)
+
+    if posts is None:
+        return render_template(
+            'error.html'
+        )
+
+    return render_template(
+        "channels.html",
+        user_id=user_id,
+        username=username,
+        channels=[channel],
+        last_visit=last_visit,
+        posts=posts,
+        active_label=1
+    )

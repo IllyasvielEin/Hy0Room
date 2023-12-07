@@ -26,6 +26,7 @@ def require_login():
         )
         return redirect(url_for('main.index'))
 
+
 @channels_bp.route("/<int:channel_id>", methods=['GET'])
 def get_channel(channel_id):
     user_id = current_user.get_id()
@@ -123,32 +124,6 @@ def add_channel():
         flash(markup_content, category=category)
 
     return redirect(url_for(return_content))
-
-
-@channels_bp.route("/search_channel", methods=['GET'])
-def search_channel():
-    channel_name = request.args.get('search_channel')
-    channel, ok = ChannelsHandler.get_channel_by_name(channel_name)
-    if not ok:
-        flash(
-            get_markup(
-                show_message="Internal error"
-            ), 'danger'
-        )
-        return redirect(url_for('main.index'))
-
-    user_id = current_user.get_id()
-    username = current_user.get_username()
-    last_visit = session.get('last_visit_channel_name')
-
-    return render_template(
-        "channels.html",
-        user_id=user_id,
-        username=username,
-        channels=[channel],
-        last_visit=last_visit,
-        active_label=1
-    )
 
 
 @channels_bp.route('/<int:channel_id>/report/<int:message_id>', methods=['GET'])
